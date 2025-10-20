@@ -21,8 +21,18 @@
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^27.0.0",
+    "electron": "^38.3.0",
     "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "morgan": "^1.10.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "uuid": "^9.0.1"
   },
   "build": {
     "appId": "com.abwarehouse.desktop",
@@ -48,11 +58,17 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ],
       "publisherName": "ABWarehouse Solutions",
