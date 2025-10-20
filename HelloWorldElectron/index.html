@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABWarehouse</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="navigation.css">
+    <script src="i18n.js"></script>
+    <script src="roleManager.js"></script>
+    <script src="auth.js"></script>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="login-page" class="page active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <h1 data-i18n="login.welcomeBack">Welcome Back</h1>
+                    <p data-i18n="login.signInMessage">Sign in to your account</p>
+                </div>
+                
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="email-username" data-i18n="login.emailOrUsername">Email or Username</label>
+                        <input 
+                            type="text" 
+                            id="email-username" 
+                            name="emailUsername" 
+                            data-i18n="login.emailPlaceholder"
+                            placeholder="Enter your email or username"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" data-i18n="login.password">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            data-i18n="login.passwordPlaceholder"
+                            placeholder="Enter your password"
+                            required
+                        >
+                        <button type="button" class="password-toggle" id="password-toggle">
+                            👁️
+                        </button>
+                    </div>
+                    
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="remember-me">
+                            <span class="checkmark"></span>
+                            <span data-i18n="login.rememberMe">Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-password" data-i18n="login.forgotPassword">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="login-btn" id="login-btn" data-i18n="login.signIn">
+                        Sign In
+                    </button>
+                    
+                    <div class="divider">
+                        <span data-i18n="login.or">or</span>
+                    </div>
+                    
+                    <button type="button" class="sso-btn" id="sso-btn">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMSA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDMgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjNDI4NUY0Ii8+Cjwvc3ZnPgo=" alt="SSO">
+                        <span data-i18n="login.signInWithSSO">Sign in with SSO</span>
+                    </button>
+                </form>
+                
+                <div class="login-footer">
+                    <p data-i18n-html="login.noAccount">Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
+                    
+                    <!-- Demo Users Section -->
+                    <div class="demo-users">
+                        <h4 data-i18n="demoUsers.title">Demo Accounts</h4>
+                        <div class="demo-user-list">
+                            <div class="demo-user" data-username="admin" data-password="admin123" onclick="fillDemoUser(this)">
+                                <span class="demo-user-name">👤 <span data-i18n="demoUsers.admin">admin</span></span>
+                                <span class="demo-user-pass">admin123</span>
+                                <span class="demo-user-type" data-i18n="demoUsers.no2FA">No 2FA</span>
+                                <span class="demo-user-role">Supervisor/Admin</span>
+                            </div>
+                            <div class="demo-user" data-username="demo@example.com" data-password="demo123" onclick="fillDemoUser(this)">
+                                <span class="demo-user-name">📧 demo@example.com</span>
+                                <span class="demo-user-pass">demo123</span>
+                                <span class="demo-user-type" data-i18n="demoUsers.no2FA">No 2FA</span>
+                                <span class="demo-user-role">Warehouse Operator</span>
+                            </div>
+                            <div class="demo-user" data-username="guest" data-password="guest123" onclick="fillDemoUser(this)">
+                                <span class="demo-user-name">👤 <span data-i18n="demoUsers.guest">guest</span></span>
+                                <span class="demo-user-pass">guest123</span>
+                                <span class="demo-user-type" data-i18n="demoUsers.no2FA">No 2FA</span>
+                                <span class="demo-user-role">Warehouse Operator</span>
+                            </div>
+                            <div class="demo-user" data-username="user@demo.com" data-password="user123" onclick="fillDemoUser(this)">
+                                <span class="demo-user-name">📧 user@demo.com</span>
+                                <span class="demo-user-pass">user123</span>
+                                <span class="demo-user-type" data-i18n="demoUsers.no2FA">No 2FA</span>
+                                <span class="demo-user-role">Procurement/Finance</span>
+                            </div>
+                            <div class="demo-user" data-username="test@company.com" data-password="test123" onclick="fillDemoUser(this)">
+                                <span class="demo-user-name">📧 test@company.com</span>
+                                <span class="demo-user-pass">test123</span>
+                                <span class="demo-user-type" data-i18n="demoUsers.no2FA">No 2FA</span>
+                                <span class="demo-user-role">Consultant</span>
+                            </div>
+                        </div>
+                        <p class="demo-note" data-i18n="demoUsers.clickToFill">💡 Click any demo account to auto-fill the login form</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2FA Verification Modal -->
+    <div id="twofa-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="twoFA.title">Two-Factor Authentication</h2>
+                <span class="close" id="twofa-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p data-i18n="twoFA.instruction">Enter the verification code from your authenticator app, SMS, or email.</p>
+                
+                <div class="twofa-methods">
+                    <button type="button" class="method-btn active" data-method="app">
+                        📱 <span data-i18n="twoFA.authenticatorApp">Authenticator App</span>
+                    </button>
+                    <button type="button" class="method-btn" data-method="sms">
+                        📞 <span data-i18n="twoFA.sms">SMS</span>
+                    </button>
+                    <button type="button" class="method-btn" data-method="email">
+                        📧 <span data-i18n="twoFA.email">Email</span>
+                    </button>
+                </div>
+                
+                <form id="twofa-form">
+                    <div class="verification-code">
+                        <input type="text" maxlength="1" class="code-input" data-index="0">
+                        <input type="text" maxlength="1" class="code-input" data-index="1">
+                        <input type="text" maxlength="1" class="code-input" data-index="2">
+                        <input type="text" maxlength="1" class="code-input" data-index="3">
+                        <input type="text" maxlength="1" class="code-input" data-index="4">
+                        <input type="text" maxlength="1" class="code-input" data-index="5">
+                    </div>
+                    
+                    <div class="twofa-actions">
+                        <button type="button" class="resend-btn" id="resend-code" data-i18n="twoFA.resendCode">
+                            Resend Code
+                        </button>
+                        <button type="submit" class="verify-btn" id="verify-btn" data-i18n="twoFA.verify">
+                            Verify
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SSO Modal -->
+    <div id="sso-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="sso.title">Enterprise Sign-In</h2>
+                <span class="close" id="sso-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p data-i18n="sso.redirecting">Redirecting to your corporate identity provider...</p>
+                <div class="sso-providers">
+                    <button type="button" class="provider-btn" data-provider="microsoft">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjgiIGhlaWdodD0iOCIgZmlsbD0iI0YyNTAyMiIvPgo8cmVjdCB4PSIxMyIgeT0iMyIgd2lkdGg9IjgiIGhlaWdodD0iOCIgZmlsbD0iIzAwQkNGMiIvPgo8cmVjdCB4PSIzIiB5PSIxMyIgd2lkdGg9IjgiIGhlaWdodD0iOCIgZmlsbD0iIzAwQjA0RiIvPgo8cmVjdCB4PSIxMyIgeT0iMTMiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNGRkI5MDAiLz4KPC9zdmc+" alt="Microsoft">
+                        <span data-i18n="sso.microsoft">Microsoft 365</span>
+                    </button>
+                    <button type="button" class="provider-btn" data-provider="google">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIyLjU2IDEyLjI1Yy0uMDMtMi42NC0uMTktNS4yNC0uNS03Ljc5SDEydjQuNzJoNS45MmMtLjI2IDEuMzctMS4wNCAyLjYtMi4yMSAzLjM5djIuNzloMy41NGMtMi4wOSAxLjk0LTQuOCAzLjA5LTggMy4wOXMtNS45MS0xLjE1LTgtMy4wOWgzLjU0di0yLjc5Yy0xLjE3LS43OS0xLjk1LTIuMDItMi4yMS0zLjM5SDJ2NC43MmMuMzEgMi41NS40NyA1LjE1LjUgNy43OWgyMC4wNnoiIGZpbGw9IiM0Mjg1RjQiLz4KPC9zdmc+" alt="Google">
+                        <span data-i18n="sso.google">Google Workspace</span>
+                    </button>
+                    <button type="button" class="provider-btn" data-provider="okta">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMDdEQzEiLz4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0id2hpdGUiLz4KPC9zdmc+" alt="Okta">
+                        <span data-i18n="sso.okta">Okta</span>
+                    </button>
+                </div>
+                <div class="sso-loading" id="sso-loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p data-i18n="sso.connecting">Connecting to identity provider...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="modal">
+        <div class="modal-content search-modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="search.title">Search Transactions</h2>
+                <span class="close" id="search-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Enter transaction name or keyword..." data-i18n="search.placeholder">
+                    <button id="search-execute-btn" class="search-btn">
+                        <span class="nav-icon">🔍</span>
+                    </button>
+                </div>
+                <div class="search-filters">
+                    <select id="search-category" data-i18n="search.category">
+                        <option value="all">All Categories</option>
+                        <option value="inbound">Inbound</option>
+                        <option value="outbound">Outbound</option>
+                        <option value="inventory">Inventory</option>
+                        <option value="configuration">Configuration</option>
+                    </select>
+                </div>
+                <div class="search-results" id="search-results">
+                    <div class="search-placeholder">
+                        <span class="search-placeholder-icon">🔍</span>
+                        <p data-i18n="search.startTyping">Start typing to search for transactions...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Configuration Modal -->
+    <div id="system-config-modal" class="modal">
+        <div class="modal-content system-config-modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="systemConfig.title">System Configuration</h2>
+                <span class="close" id="system-config-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="config-intro">
+                    <p data-i18n="systemConfig.intro">Configure and tailor the system behavior according to specific business requirements.</p>
+                </div>
+                <div class="config-modules">
+                    <div class="config-section">
+                        <h3 data-i18n="systemConfig.organizationalStructure">Organizational Structure</h3>
+                        <div class="config-items">
+                            <button class="config-btn" data-config="company-codes">
+                                <span class="config-icon">🏢</span>
+                                <span data-i18n="systemConfig.companyCodes">Company Codes</span>
+                            </button>
+                            <button class="config-btn" data-config="plants">
+                                <span class="config-icon">🏭</span>
+                                <span data-i18n="systemConfig.plants">Plants</span>
+                            </button>
+                            <button class="config-btn" data-config="storage-locations">
+                                <span class="config-icon">📍</span>
+                                <span data-i18n="systemConfig.storageLocations">Storage Locations</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-section">
+                        <h3 data-i18n="systemConfig.warehouseManagement">Warehouse Management</h3>
+                        <div class="config-items">
+                            <button class="config-btn" data-config="warehouse-structure">
+                                <span class="config-icon">🏗️</span>
+                                <span data-i18n="systemConfig.warehouseStructure">Warehouse Structure</span>
+                            </button>
+                            <button class="config-btn" data-config="picking-strategies">
+                                <span class="config-icon">📋</span>
+                                <span data-i18n="systemConfig.pickingStrategies">Picking Strategies</span>
+                            </button>
+                            <button class="config-btn" data-config="putaway-strategies">
+                                <span class="config-icon">⬇️</span>
+                                <span data-i18n="systemConfig.putawayStrategies">Putaway Strategies</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-section">
+                        <h3 data-i18n="systemConfig.businessProcesses">Business Processes</h3>
+                        <div class="config-items">
+                            <button class="config-btn" data-config="inbound-process">
+                                <span class="config-icon">📥</span>
+                                <span data-i18n="systemConfig.inboundProcess">Inbound Process</span>
+                            </button>
+                            <button class="config-btn" data-config="outbound-process">
+                                <span class="config-icon">📤</span>
+                                <span data-i18n="systemConfig.outboundProcess">Outbound Process</span>
+                            </button>
+                            <button class="config-btn" data-config="inventory-management">
+                                <span class="config-icon">📊</span>
+                                <span data-i18n="systemConfig.inventoryManagement">Inventory Management</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-section">
+                        <h3 data-i18n="systemConfig.systemParameters">System Parameters</h3>
+                        <div class="config-items">
+                            <button class="config-btn" data-config="number-ranges">
+                                <span class="config-icon">🔢</span>
+                                <span data-i18n="systemConfig.numberRanges">Number Ranges</span>
+                            </button>
+                            <button class="config-btn" data-config="user-roles">
+                                <span class="config-icon">👥</span>
+                                <span data-i18n="systemConfig.userRoles">User Roles & Permissions</span>
+                            </button>
+                            <button class="config-btn" data-config="integration-settings">
+                                <span class="config-icon">🔗</span>
+                                <span data-i18n="systemConfig.integrationSettings">Integration Settings</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard-page" class="page">
+        <!-- Common Navigation will be inserted here -->
+        <div id="dashboard-navigation-placeholder"></div>
+            
+        <main class="dashboard-main">
+                <!-- Three-Section Dashboard Layout -->
+                <div class="dashboard-container">
+                    <!-- Favorites Tree Section (Left) -->
+                    <div class="favorites-tree-section">
+                        <div class="tree-header">
+                            <h3 data-i18n="favorites.title">Favorites & Transactions</h3>
+                            <div class="tree-actions">
+                                <button class="tree-action-btn" id="insert-transaction-btn" title="Insert Transaction">
+                                    <span class="action-icon">📄</span>
+                                </button>
+                                <button class="tree-action-btn" id="add-folder-btn" title="Add Folder">
+                                    <span class="action-icon">📁</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="tree-container" id="favorites-tree">
+                            <!-- SAP-style tree structure will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Management Tiles Section (Center) -->
+                    <div class="tiles-section management-section">
+                        <div class="management-tiles" id="management-tiles">
+                            <!-- Management tiles: inbox, warehouse_monitor, master_data, configuration -->
+                        </div>
+                    </div>
+                    
+                    <!-- Operational Tiles Section (Right) -->
+                    <div class="tiles-section operational-section">
+                        <div class="operational-tiles" id="operational-tiles">
+                            <!-- Operational tiles: inbound, outbound, replenishment, physical_inventory, internal_movements, return_process -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Organizational Structure Page -->
+    <div id="organizational-structure-page" class="page" style="display: none;">
+        <!-- Common Navigation will be inserted here -->
+        <div id="org-navigation-placeholder"></div>
+        
+        <main class="org-structure-main">
+            <div class="org-structure-container">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="breadcrumb">
+                        <span data-i18n="navigation.systemConfig">System Config</span>
+                        <span class="breadcrumb-separator">›</span>
+                        <span data-i18n="organizationalStructure.title">Organizational Structure</span>
+                    </div>
+                    <p class="page-description" data-i18n="organizationalStructure.description">
+                        Define and manage your organizational hierarchy, including company codes, plants, storage locations, and organizational units.
+                    </p>
+                </div>
+
+                <!-- Content Section with Tree Layout -->
+                <div class="org-structure-content">
+                    <!-- Left-Aligned Tree Menu -->
+                    <div class="org-tree-section">
+                        <div class="tree-header">
+                            <h3 data-i18n="organizationalStructure.title">Organisational Structure</h3>
+                        </div>
+                        <div class="tree-container" id="org-structure-tree">
+                            <!-- Main Section: Organisational Structure -->
+                            <div class="tree-node tree-main-section">
+                                <div class="tree-item">
+                                    <span class="tree-icon">📁</span>
+                                    <span class="tree-label" data-i18n="orgStructure.mainSection">Organisational Structure</span>
+                                </div>
+                                
+                                <!-- Definition Subsection -->
+                                <div class="tree-subsection">
+                                    <div class="tree-node tree-subsection-node">
+                                        <div class="tree-item tree-subsection-header">
+                                            <span class="tree-icon">📋</span>
+                                            <span class="tree-label" data-i18n="orgStructure.definition">Definition</span>
+                                        </div>
+                                        <div class="tree-children">
+                                            <div class="tree-child" data-action="create-company">
+                                                <span class="tree-icon">🏢</span>
+                                                <span class="tree-label" data-i18n="orgStructure.createCompany">Create Company</span>
+                                            </div>
+                                            <div class="tree-child" data-action="create-plant">
+                                                <span class="tree-icon">🏭</span>
+                                                <span class="tree-label" data-i18n="orgStructure.createPlant">Create Plant</span>
+                                            </div>
+                                            <div class="tree-child" data-action="create-division">
+                                                <span class="tree-icon">🏗️</span>
+                                                <span class="tree-label" data-i18n="orgStructure.createDivision">Create Division</span>
+                                            </div>
+                                            <div class="tree-child" data-action="create-sales-org">
+                                                <span class="tree-icon">💼</span>
+                                                <span class="tree-label" data-i18n="orgStructure.createSalesOrganization">Create Sales Organization</span>
+                                            </div>
+                                            <div class="tree-child" data-action="maintain-storage-location">
+                                                <span class="tree-icon">📦</span>
+                                                <span class="tree-label" data-i18n="orgStructure.maintainStorageLocation">Maintain Storage Location</span>
+                                            </div>
+                                            <div class="tree-child" data-action="maintain-purchasing-org">
+                                                <span class="tree-icon">�</span>
+                                                <span class="tree-label" data-i18n="orgStructure.maintainPurchasingOrganization">Maintain Purchasing Organization</span>
+                                            </div>
+                                            <div class="tree-child" data-action="create-warehouse-number">
+                                                <span class="tree-icon">🏬</span>
+                                                <span class="tree-label" data-i18n="orgStructure.createWarehouseNumber">Create Warehouse Number</span>
+                                            </div>
+                                            <div class="tree-child" data-action="create-shipping-point">
+                                                <span class="tree-icon">🚚</span>
+                                                <span class="tree-label" data-i18n="orgStructure.createShippingPoint">Create Shipping Point</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Assignment Subsection -->
+                                <div class="tree-subsection">
+                                    <div class="tree-node tree-subsection-node">
+                                        <div class="tree-item tree-subsection-header">
+                                            <span class="tree-icon">🔗</span>
+                                            <span class="tree-label" data-i18n="orgStructure.assignment">Assignment</span>
+                                        </div>
+                                        <div class="tree-children">
+                                            <div class="tree-child" data-action="assign-plant-company">
+                                                <span class="tree-icon">🏭➡️🏢</span>
+                                                <span class="tree-label" data-i18n="orgStructure.assignPlantToCompany">Assign Plant To Company</span>
+                                            </div>
+                                            <div class="tree-child" data-action="assign-sales-org-company">
+                                                <span class="tree-icon">💼➡️🏢</span>
+                                                <span class="tree-label" data-i18n="orgStructure.assignSalesOrganizationToCompany">Assign Sales Organization To Company</span>
+                                            </div>
+                                            <div class="tree-child" data-action="assign-division-sales-org">
+                                                <span class="tree-icon">🏗️➡️💼</span>
+                                                <span class="tree-label" data-i18n="orgStructure.assignDivisionToSalesOrganization">Assign Division To Sales Organization</span>
+                                            </div>
+                                            <div class="tree-child" data-action="assign-purchasing-org-company">
+                                                <span class="tree-icon">�➡️🏢</span>
+                                                <span class="tree-label" data-i18n="orgStructure.assignPurchasingOrganizationToCompany">Assign Purchasing Organization To Company</span>
+                                            </div>
+                                            <div class="tree-child" data-action="assign-purchasing-org-plant">
+                                                <span class="tree-icon">🛒➡️🏭</span>
+                                                <span class="tree-label" data-i18n="orgStructure.assignPurchasingOrganizationToPlant">Assign Purchasing Organization To Plant</span>
+                                            </div>
+                                            <div class="tree-child" data-action="assign-warehouse-plant-storage">
+                                                <span class="tree-icon">🏬➡️🏭📦</span>
+                                                <span class="tree-label" data-i18n="orgStructure.assignWarehouseNumberToPlantAndStorageLocation">Assign Warehouse Number To Plant And Storage Location</span>
+                                            </div>
+                                            <div class="tree-child" data-action="assign-shipping-point-plant-storage">
+                                                <span class="tree-icon">🚚➡️🏭📦</span>
+                                                <span class="tree-label" data-i18n="orgStructure.assignShippingPointToPlantAndStorageLocation">Assign Shipping Point To Plant And Storage Location</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Shipping Subsection -->
+                                <div class="tree-subsection">
+                                    <div class="tree-node tree-subsection-node">
+                                        <div class="tree-item tree-subsection-header">
+                                            <span class="tree-icon">�</span>
+                                            <span class="tree-label" data-i18n="orgStructure.shipping">Shipping</span>
+                                        </div>
+                                        <div class="tree-children">
+                                            <div class="tree-child" data-action="define-shipping-conditions">
+                                                <span class="tree-icon">📋</span>
+                                                <span class="tree-label" data-i18n="orgStructure.defineShippingConditions">Define Shipping Conditions</span>
+                                            </div>
+                                            <div class="tree-child" data-action="assign-shipping-points-plant-conditions">
+                                                <span class="tree-icon">🚚➡️🏭📋</span>
+                                                <span class="tree-label" data-i18n="orgStructure.assignShippingPointsToPlantAndShippingConditions">Assign Shipping Points To Plant And Shipping Conditions</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content Area -->
+                    <div class="org-content-area">
+                        <div class="content-placeholder">
+                            <div class="placeholder-icon">📋</div>
+                            <h3 data-i18n="orgStructure.selectActionPlaceholder">Select an action from the tree menu</h3>
+                            <p data-i18n="orgStructure.selectActionDescription">Choose from the organizational structure options on the left to manage your company hierarchy.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Company Code Page -->
+    <div id="create-company-code-page" class="page" style="display: none;">
+        <!-- Common Navigation will be inserted here -->
+        <div id="cc-navigation-placeholder"></div>
+
+        <main class="create-company-main">
+            <div class="create-company-container">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="breadcrumb">
+                        <span data-i18n="navigation.systemConfig">System Config</span>
+                        <span class="breadcrumb-separator">›</span>
+                        <span data-i18n="organizationalStructure.title">Organizational Structure</span>
+                        <span class="breadcrumb-separator">›</span>
+                        <span data-i18n="createCompanyCode.title">Create Company Code</span>
+                    </div>
+                    <p class="page-description" data-i18n="createCompanyCode.description">
+                        Enter the details to create a new company code. Company code represents the highest level organizational unit.
+                    </p>
+                </div>
+
+                <!-- Form Section -->
+                <div class="form-container">
+                    <form id="company-code-form" class="company-code-form">
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                            <h3 class="section-title" data-i18n="createCompanyCode.basicInformation">Basic Information</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="company-code" data-i18n="createCompanyCode.companyCode">Company Code *</label>
+                                    <input 
+                                        type="text" 
+                                        id="company-code" 
+                                        name="companyCode"
+                                        maxlength="4" 
+                                        required
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.companyCodePlaceholder"
+                                        placeholder="Enter 4-character company code"
+                                    >
+                                    <span class="field-info">CHAR(4) - Required</span>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="company-name" data-i18n="createCompanyCode.companyName">Company Name *</label>
+                                    <input 
+                                        type="text" 
+                                        id="company-name" 
+                                        name="companyName"
+                                        maxlength="132" 
+                                        required
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.companyNamePlaceholder"
+                                        placeholder="Enter company name"
+                                    >
+                                    <span class="field-info">CHAR(132) - Required</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="city" data-i18n="createCompanyCode.city">City *</label>
+                                    <input 
+                                        type="text" 
+                                        id="city" 
+                                        name="city"
+                                        maxlength="132"
+                                        required
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.cityPlaceholder"
+                                        placeholder="Enter city"
+                                    >
+                                    <span class="field-info">CHAR(132) - Required</span>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="country" data-i18n="createCompanyCode.country">Country *</label>
+                                    <select id="country" name="country" class="form-select" required>
+                                        <option value="" data-i18n="createCompanyCode.selectCountry">Select Country...</option>
+                                    </select>
+                                    <span class="field-info">CHAR(2) - ISO Country Code - Required</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="currency" data-i18n="createCompanyCode.currency">Currency *</label>
+                                    <select id="currency" name="currency" class="form-select" required>
+                                        <option value="" data-i18n="createCompanyCode.selectCurrency">Select Currency...</option>
+                                    </select>
+                                    <span class="field-info">CHAR(3) - ISO Currency Code - Required</span>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="language" data-i18n="createCompanyCode.language">Language *</label>
+                                    <select id="language" name="language" class="form-select" required>
+                                        <option value="" data-i18n="createCompanyCode.selectLanguage">Select Language...</option>
+                                    </select>
+                                    <span class="field-info">CHAR(2) - ISO Language Code - Required</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tax Information Section -->
+                        <div class="form-section">
+                            <h3 class="section-title" data-i18n="createCompanyCode.taxInformation">Tax Information</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="vat-registration" data-i18n="createCompanyCode.vatRegistration">VAT Registration Number</label>
+                                    <input 
+                                        type="text" 
+                                        id="vat-registration" 
+                                        name="vatRegistrationNumber"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.vatRegistrationPlaceholder"
+                                        placeholder="Enter VAT registration number"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="input-tax-code" data-i18n="createCompanyCode.inputTaxCode">Input Tax Code</label>
+                                    <input 
+                                        type="text" 
+                                        id="input-tax-code" 
+                                        name="inputTaxCode"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.inputTaxCodePlaceholder"
+                                        placeholder="Enter input tax code"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="output-tax-code" data-i18n="createCompanyCode.outputTaxCode">Output Tax Code</label>
+                                    <input 
+                                        type="text" 
+                                        id="output-tax-code" 
+                                        name="outputTaxCode"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.outputTaxCodePlaceholder"
+                                        placeholder="Enter output tax code"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="house-number" data-i18n="createCompanyCode.houseNumber">House Number</label>
+                                    <input 
+                                        type="number" 
+                                        id="house-number" 
+                                        name="houseNumber"
+                                        max="999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.houseNumberPlaceholder"
+                                        placeholder="Enter house number"
+                                    >
+                                    <span class="field-info">Numeric(132)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Information Section -->
+                        <div class="form-section">
+                            <h3 class="section-title" data-i18n="createCompanyCode.addressInformation">Address Information</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-field full-width">
+                                    <label for="address-line-1" data-i18n="createCompanyCode.addressLine1">Address Line 1</label>
+                                    <input 
+                                        type="text" 
+                                        id="address-line-1" 
+                                        name="addressLine1"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.addressLine1Placeholder"
+                                        placeholder="Enter address line 1"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field full-width">
+                                    <label for="address-line-2" data-i18n="createCompanyCode.addressLine2">Address Line 2</label>
+                                    <input 
+                                        type="text" 
+                                        id="address-line-2" 
+                                        name="addressLine2"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.addressLine2Placeholder"
+                                        placeholder="Enter address line 2"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field full-width">
+                                    <label for="address-line-3" data-i18n="createCompanyCode.addressLine3">Address Line 3</label>
+                                    <input 
+                                        type="text" 
+                                        id="address-line-3" 
+                                        name="addressLine3"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.addressLine3Placeholder"
+                                        placeholder="Enter address line 3"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="region" data-i18n="createCompanyCode.region">Region</label>
+                                    <input 
+                                        type="text" 
+                                        id="region" 
+                                        name="region"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.regionPlaceholder"
+                                        placeholder="Enter region"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="district" data-i18n="createCompanyCode.district">District</label>
+                                    <input 
+                                        type="text" 
+                                        id="district" 
+                                        name="district"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.districtPlaceholder"
+                                        placeholder="Enter district"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="county" data-i18n="createCompanyCode.county">County</label>
+                                    <input 
+                                        type="text" 
+                                        id="county" 
+                                        name="county"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.countyPlaceholder"
+                                        placeholder="Enter county"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="state" data-i18n="createCompanyCode.state">State</label>
+                                    <input 
+                                        type="text" 
+                                        id="state" 
+                                        name="state"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.statePlaceholder"
+                                        placeholder="Enter state"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="post-code" data-i18n="createCompanyCode.postCode">Post Code / PO Box</label>
+                                    <input 
+                                        type="text" 
+                                        id="post-code" 
+                                        name="postCode"
+                                        maxlength="132"
+                                        class="form-input"
+                                        data-i18n="createCompanyCode.postCodePlaceholder"
+                                        placeholder="Enter post code or PO Box"
+                                    >
+                                    <span class="field-info">CHAR(132)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="button" id="cancel-btn" class="btn btn-secondary" data-i18n="createCompanyCode.cancel">Cancel</button>
+                            <button type="submit" id="save-btn" class="btn btn-primary" data-i18n="createCompanyCode.save">Save Company Code</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Company Code Management Page -->
+    <div id="company-code-management-page" class="page" style="display: none;">
+        <main class="main-content">
+            <div class="page-container">
+                <!-- Page Header with Breadcrumb Navigation -->
+                <div class="page-header">
+                    <div class="breadcrumb">
+                        <span data-i18n="navigation.systemConfig">System Config</span>
+                        <span class="breadcrumb-separator">›</span>
+                        <span data-i18n="organizationalStructure.title">Organizational Structure</span>
+                        <span class="breadcrumb-separator">›</span>
+                        <span data-i18n="companyCodeManagement.title">Company Code Management</span>
+                    </div>
+                    <h1 data-i18n="companyCodeManagement.title">Company Code Management</h1>
+                    <p data-i18n="companyCodeManagement.subtitle">View, create, edit, and delete company codes</p>
+                </div>
+
+                <div class="company-code-management-container">
+                    <!-- Toolbar -->
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <button type="button" id="back-to-org-structure" class="btn btn-outline">
+                                <span>← </span>
+                                <span data-i18n="navigation.backToOrgStructure">Back to Org Structure</span>
+                            </button>
+                            <button type="button" id="refresh-company-codes" class="btn btn-secondary">
+                                <span>🔄</span>
+                                <span data-i18n="companyCodeManagement.refresh">Refresh</span>
+                            </button>
+                            <button type="button" id="add-company-code" class="btn btn-primary">
+                                <span>➕</span>
+                                <span data-i18n="companyCodeManagement.addNew">Add New</span>
+                            </button>
+                        </div>
+                        <div class="toolbar-right">
+                            <div class="search-container">
+                                <input 
+                                    type="text" 
+                                    id="search-company-codes" 
+                                    class="search-input"
+                                    data-i18n="companyCodeManagement.searchPlaceholder"
+                                    placeholder="Search company codes..."
+                                >
+                                <button type="button" class="search-btn">🔍</button>
+                            </div>
+                            <div class="filter-container">
+                                <select id="filter-country" class="filter-select">
+                                    <option value="" data-i18n="companyCodeManagement.allCountries">All Countries</option>
+                                </select>
+                                <select id="filter-currency" class="filter-select">
+                                    <option value="" data-i18n="companyCodeManagement.allCurrencies">All Currencies</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loading-state" class="loading-state" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p data-i18n="companyCodeManagement.loading">Loading company codes...</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="error-state" class="error-state" style="display: none;">
+                        <div class="error-icon">⚠️</div>
+                        <h3 data-i18n="companyCodeManagement.errorTitle">Error Loading Company Codes</h3>
+                        <p id="error-message" class="error-message"></p>
+                        <button type="button" id="retry-load" class="btn btn-primary" data-i18n="companyCodeManagement.retry">Retry</button>
+                    </div>
+
+                    <!-- Company Codes Table -->
+                    <div id="company-codes-table-container" class="table-container">
+                        <table id="company-codes-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="companyCodeManagement.companyCode">Company Code</th>
+                                    <th data-i18n="companyCodeManagement.companyName">Company Name</th>
+                                    <th data-i18n="companyCodeManagement.city">City</th>
+                                    <th data-i18n="companyCodeManagement.country">Country</th>
+                                    <th data-i18n="companyCodeManagement.currency">Currency</th>
+                                    <th data-i18n="companyCodeManagement.language">Language</th>
+                                    <th data-i18n="companyCodeManagement.actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="company-codes-tbody">
+                                <!-- Company codes will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-state" class="empty-state" style="display: none;">
+                        <div class="empty-icon">📋</div>
+                        <h3 data-i18n="companyCodeManagement.noCompanyCodes">No Company Codes Found</h3>
+                        <p data-i18n="companyCodeManagement.noCompanyCodesMessage">Get started by creating your first company code.</p>
+                        <button type="button" id="add-first-company-code" class="btn btn-primary" data-i18n="companyCodeManagement.addFirst">Add First Company Code</button>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div id="stats-container" class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-icon">🏢</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="total-companies">0</div>
+                                <div class="stat-label" data-i18n="companyCodeManagement.totalCompanies">Total Companies</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🌍</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="total-countries">0</div>
+                                <div class="stat-label" data-i18n="companyCodeManagement.countries">Countries</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="total-currencies">0</div>
+                                <div class="stat-label" data-i18n="companyCodeManagement.currencies">Currencies</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Company Code Edit Modal -->
+    <div id="company-code-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title" data-i18n="companyCodeManagement.editCompany">Edit Company Code</h2>
+                <button type="button" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="company-code-form" class="company-code-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modal-company-code" data-i18n="createCompanyCode.companyCode">Company Code *</label>
+                            <input 
+                                type="text" 
+                                id="modal-company-code" 
+                                name="companyCode"
+                                maxlength="4"
+                                class="form-input"
+                                required
+                            >
+                            <span class="field-info">CHAR(4)</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="modal-company-name" data-i18n="createCompanyCode.companyName">Company Name *</label>
+                            <input 
+                                type="text" 
+                                id="modal-company-name" 
+                                name="companyName"
+                                maxlength="132"
+                                class="form-input"
+                                required
+                            >
+                            <span class="field-info">CHAR(132)</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modal-city" data-i18n="createCompanyCode.city">City *</label>
+                            <input 
+                                type="text" 
+                                id="modal-city" 
+                                name="city"
+                                maxlength="132"
+                                class="form-input"
+                                required
+                            >
+                            <span class="field-info">CHAR(132)</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="modal-country" data-i18n="createCompanyCode.country">Country *</label>
+                            <select id="modal-country" name="country" class="form-input" required>
+                                <option value="" data-i18n="createCompanyCode.selectCountry">Select Country</option>
+                            </select>
+                            <span class="field-info">CHAR(2)</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modal-currency" data-i18n="createCompanyCode.currency">Currency *</label>
+                            <select id="modal-currency" name="currency" class="form-input" required>
+                                <option value="" data-i18n="createCompanyCode.selectCurrency">Select Currency</option>
+                            </select>
+                            <span class="field-info">CHAR(3)</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="modal-language" data-i18n="createCompanyCode.language">Language *</label>
+                            <select id="modal-language" name="language" class="form-input" required>
+                                <option value="" data-i18n="createCompanyCode.selectLanguage">Select Language</option>
+                            </select>
+                            <span class="field-info">CHAR(2)</span>
+                        </div>
+                    </div>
+
+                    <!-- Additional fields can be added here -->
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="modal-cancel" class="btn btn-secondary" data-i18n="companyCodeManagement.cancel">Cancel</button>
+                <button type="button" id="modal-save" class="btn btn-primary" data-i18n="companyCodeManagement.save">Save</button>
+                <button type="button" id="modal-delete" class="btn btn-danger" data-i18n="companyCodeManagement.delete" style="display: none;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="common-navigation.js"></script>
+    <script src="navigation.js"></script>
+    <script src="company-code-management.js"></script>
+    <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
+
+// Keep a global reference of the window object
+let mainWindow;
+
+function createWindow() {
+  // Create the browser window
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    title: 'ABWarehouse',
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    },
+    icon: path.join(__dirname, 'assets/icon.png') // Optional icon
+  });
+
+  // Load the index.html file
+  mainWindow.loadFile('index.html');
+
+  // Open DevTools in development
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
+
+  // Handle window closed
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+}
+
+// This method will be called when Electron has finished initialization
+app.whenReady().then(createWindow);
+
+// Quit when all windows are closed
+app.on('window-all-closed', () => {
+  // On macOS, keep the app running even when all windows are closed
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  // On macOS, re-create a window when the dock icon is clicked
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});

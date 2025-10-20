@@ -1,0 +1,92 @@
+<!-- Common Navigation Component -->
+<div class="nav-container" id="common-navigation">
+    <div class="nav-top-bar">
+        <div class="nav-left">
+            <button class="nav-btn nav-btn-home" id="home-btn" title="Home">
+                <span class="nav-home-icon">🏠</span>
+            </button>
+            <button class="nav-btn nav-btn-back" id="back-btn" title="Back" style="display: none;">
+                <span class="nav-back-icon">←</span>
+                <span class="nav-back-text" data-i18n="navigation.back">Back</span>
+            </button>
+        </div>
+        <div class="nav-center">
+            <!-- Enhanced Search Section -->
+            <div class="nav-search-section">
+                <div class="search-input-container">
+                    <span class="search-icon-enhanced">🔍</span>
+                    <input 
+                        type="text" 
+                        id="nav-search-input" 
+                        class="nav-search-input-enhanced" 
+                        placeholder="Search transactions, materials, reports..." 
+                        data-i18n="navigation.searchPlaceholder"
+                        autocomplete="off"
+                    >
+                    <button class="search-clear-btn-enhanced" id="search-clear-btn" title="Clear search" style="display: none;">✕</button>
+                    <button class="search-filter-btn" id="search-filter-btn" title="Search filters">⚙️</button>
+                </div>
+                <div class="search-suggestions-enhanced" id="search-suggestions" style="display: none;">
+                    <div class="suggestion-header-enhanced">
+                        <span data-i18n="search.recentSearches">Recent Searches</span>
+                        <button class="clear-history-btn" id="clear-search-history" data-i18n="search.clearHistory">Clear</button>
+                    </div>
+                    <div class="suggestion-list-enhanced" id="suggestion-list">
+                        <!-- Dynamic suggestions will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="nav-right">
+            <!-- New Session Button -->
+            <button class="nav-btn-unified nav-btn-new-session" id="new-screen-btn" title="Open new session" data-i18n="navigation.newScreen">
+                <span class="nav-icon-unified">🗔</span>
+                <span class="nav-label-unified">New Session</span>
+            </button>
+            
+            <!-- Simple Language Switcher -->
+            <div class="nav-language-container">
+                <button class="nav-btn-unified nav-language-btn" id="language-btn" title="Switch language">
+                    <span class="nav-icon-unified" id="language-flag">🇺🇸</span>
+                    <span class="nav-label-unified" id="language-text">EN</span>
+                    <span class="nav-dropdown-arrow">▼</span>
+                </button>
+                <div class="nav-simple-dropdown language-options" id="language-options">
+                    <div class="nav-simple-item" data-lang="en">
+                        <span class="nav-simple-icon">🇺🇸</span>
+                        <span class="nav-simple-text">English</span>
+                    </div>
+                    <div class="nav-simple-item" data-lang="fr">
+                        <span class="nav-simple-icon">🇫🇷</span>
+                        <span class="nav-simple-text">Français</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Simple User Menu -->
+            <div class="nav-user-container">
+                <button class="nav-btn-unified nav-user-btn" id="user-btn" data-i18n="navigation.userMenu" title="User Menu">
+                    <span class="nav-icon-unified">👤</span>
+                    <span class="nav-label-unified" id="username-display">User</span>
+                    <span class="nav-dropdown-arrow">▼</span>
+                </button>
+                <div class="nav-simple-dropdown user-options" id="user-options">
+                    <div class="nav-simple-item" id="profile-option">
+                        <span class="nav-simple-icon">⚙️</span>
+                        <span class="nav-simple-text" data-i18n="navigation.profileSettings">Profile Settings</span>
+                    </div>
+                    <div class="nav-simple-item" id="logout-option">
+                        <span class="nav-simple-icon">🚪</span>
+                        <span class="nav-simple-text" data-i18n="navigation.signOut">Sign Out</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Close Session Button -->
+            <button class="nav-btn-unified nav-btn-close-session" id="close-btn" title="Close session" data-i18n="navigation.closeSession">
+                <span class="nav-icon-unified">✕</span>
+                <span class="nav-label-unified">Close</span>
+            </button>
+        </div>
+    </div>
+</div>

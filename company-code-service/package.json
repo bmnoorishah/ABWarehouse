@@ -1,0 +1,36 @@
+{
+  "name": "company-code-service",
+  "version": "1.0.0",
+  "description": "Microservice for Company Code configuration management with CRUD operations",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "microservice",
+    "company-code",
+    "rest-api",
+    "swagger",
+    "h2-database"
+  ],
+  "author": "ABWarehouse",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "joi": "^17.11.0",
+    "uuid": "^9.0.1",
+    "better-sqlite3": "^9.2.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  }
+}

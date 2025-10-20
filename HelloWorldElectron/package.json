@@ -1,0 +1,72 @@
+{
+  "name": "abwarehouse-electron",
+  "version": "1.0.0",
+  "description": "ABWarehouse desktop application built with Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build-win": "electron-builder --win",
+    "build-win-portable": "electron-builder --win portable",
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux",
+    "dist": "electron-builder --publish=never"
+  },
+  "keywords": [
+    "electron",
+    "abwarehouse",
+    "desktop-app",
+    "cross-platform"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.abwarehouse.desktop",
+    "productName": "ABWarehouse",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules",
+      "!dist",
+      "!.git",
+      "!*.md",
+      "!build-windows.bat",
+      "!.DS_Store",
+      "!.gitignore"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64", "ia32"]
+        }
+      ],
+      "publisherName": "ABWarehouse Solutions",
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ABWarehouse"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
