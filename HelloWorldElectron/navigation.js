@@ -280,14 +280,61 @@ class NavigationManager {
     }
 
     navigateToScreen(screenId) {
-        // This would implement actual screen navigation
-        // For now, we'll just update the current screen reference
+        // This implements actual screen navigation
         this.currentScreen = screenId;
         console.log(`Navigating to screen: ${screenId}`);
+        
+        // Handle special navigation cases
+        switch(screenId) {
+            case 'sql-query':
+                if (typeof showSQLQueryInterface === 'function') {
+                    showSQLQueryInterface();
+                } else {
+                    console.warn('showSQLQueryInterface function not available');
+                }
+                break;
+            case 'company-code-management':
+                if (window.commonNavigation && typeof window.commonNavigation.navigateToPage === 'function') {
+                    window.commonNavigation.navigateToPage('company-code-management');
+                } else {
+                    console.warn('commonNavigation not available for company-code-management');
+                }
+                break;
+            default:
+                // For other screens, try to use the tree navigation system
+                if (window.commonNavigation && typeof window.commonNavigation.handleTreeItemAction === 'function') {
+                    window.commonNavigation.handleTreeItemAction({ getAttribute: () => screenId });
+                } else {
+                    console.log(`No specific navigation handler for screen: ${screenId}`);
+                }
+                break;
+        }
     }
 
     // Search Functionality
     initializeSearchData() {
+        // Initialize keyword-based navigation mapping
+        this.keywordNavigationMap = {
+            'table': { id: 'sql-query', title: 'SQL Query Interface', description: 'Access database tables and query interface' },
+            'TABLE': { id: 'sql-query', title: 'SQL Query Interface', description: 'Access database tables and query interface' },
+            'database': { id: 'sql-query', title: 'SQL Query Interface', description: 'Access database and query tools' },
+            'sql': { id: 'sql-query', title: 'SQL Query Interface', description: 'Execute SQL queries and view data' },
+            'query': { id: 'sql-query', title: 'SQL Query Interface', description: 'Query database tables and data' },
+            'data': { id: 'sql-query', title: 'SQL Query Interface', description: 'View and query data tables' },
+            'company': { id: 'company-code-management', title: 'Company Code Management', description: 'Manage company codes and configurations' },
+            'code': { id: 'company-code-management', title: 'Company Code Management', description: 'Manage company codes' },
+            'master': { id: 'master_data', title: 'Master Data', description: 'Manage master data settings' },
+            'config': { id: 'configuration', title: 'System Configuration', description: 'Configure system parameters' },
+            'configuration': { id: 'configuration', title: 'System Configuration', description: 'Configure system parameters' },
+            'inbox': { id: 'inbox', title: 'Inbox', description: 'View incoming messages and notifications' },
+            'delivery': { id: 'inbound', title: 'Inbound Delivery', description: 'Manage incoming deliveries' },
+            'shipment': { id: 'outbound', title: 'Outbound Delivery', description: 'Handle outgoing shipments' },
+            'inventory': { id: 'physical_inventory', title: 'Physical Inventory', description: 'Conduct physical inventory counts' },
+            'stock': { id: 'replenishment', title: 'Stock Replenishment', description: 'Monitor inventory replenishment' },
+            'return': { id: 'return_process', title: 'Return Process', description: 'Handle product returns' },
+            'monitor': { id: 'warehouse_monitor', title: 'Warehouse Monitor', description: 'Monitor warehouse performance' }
+        };
+
         this.searchData = [
             { title: 'Inbox', category: 'inbound', description: 'View incoming messages and notifications', id: 'inbox' },
             { title: 'Inbound Delivery', category: 'inbound', description: 'Manage incoming shipments and deliveries', id: 'inbound' },
@@ -298,7 +345,9 @@ class NavigationManager {
             { title: 'Return Process', category: 'outbound', description: 'Handle product returns and return processing', id: 'return_process' },
             { title: 'Master Data', category: 'configuration', description: 'Manage master data settings', id: 'master_data' },
             { title: 'System Configuration', category: 'configuration', description: 'Configure system parameters', id: 'configuration' },
-            { title: 'Warehouse Monitor', category: 'configuration', description: 'Monitor warehouse performance and metrics', id: 'warehouse_monitor' }
+            { title: 'Warehouse Monitor', category: 'configuration', description: 'Monitor warehouse performance and metrics', id: 'warehouse_monitor' },
+            { title: 'SQL Query Interface', category: 'configuration', description: 'Access database tables and execute SQL queries', id: 'sql-query' },
+            { title: 'Company Code Management', category: 'configuration', description: 'Manage company codes and organizational settings', id: 'company-code-management' }
         ];
     }
 
@@ -316,6 +365,35 @@ class NavigationManager {
             return;
         }
 
+        // Check for exact keyword matches first (case-insensitive)
+        const trimmedQuery = query.trim();
+        const keywordMatch = this.keywordNavigationMap[trimmedQuery] || 
+                           this.keywordNavigationMap[trimmedQuery.toLowerCase()] ||
+                           this.keywordNavigationMap[trimmedQuery.toUpperCase()];
+
+        if (keywordMatch) {
+            // If exact keyword match found, show it prominently and navigate directly
+            resultsContainer.innerHTML = `
+                <div class="search-result-item keyword-match" data-item-id="${keywordMatch.id}">
+                    <div class="search-result-title">🎯 ${keywordMatch.title}</div>
+                    <div class="search-result-category">Direct Navigation</div>
+                    <div class="search-result-description">${keywordMatch.description}</div>
+                    <div class="keyword-indicator">Keyword: "${trimmedQuery}"</div>
+                </div>
+            `;
+            
+            // Auto-navigate after a short delay if it's an exact match
+            setTimeout(() => {
+                this.closeModal('search');
+                this.navigateToScreen(keywordMatch.id);
+                this.addToSearchHistory(trimmedQuery);
+                this.showNotification(`Opening ${keywordMatch.title} (keyword: ${trimmedQuery})`, 'success');
+            }, 500);
+            
+            return;
+        }
+
+        // Regular search logic for partial matches
         const filteredResults = this.searchData.filter(item => {
             const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase()) ||
                                item.description.toLowerCase().includes(query.toLowerCase());
@@ -323,21 +401,49 @@ class NavigationManager {
             return matchesQuery && matchesCategory;
         });
 
-        if (filteredResults.length === 0) {
+        // Also check for partial keyword matches
+        const keywordResults = [];
+        Object.keys(this.keywordNavigationMap).forEach(keyword => {
+            if (keyword.toLowerCase().includes(query.toLowerCase()) || 
+                query.toLowerCase().includes(keyword.toLowerCase())) {
+                const keywordItem = this.keywordNavigationMap[keyword];
+                // Avoid duplicates
+                if (!keywordResults.find(item => item.id === keywordItem.id)) {
+                    keywordResults.push({
+                        ...keywordItem,
+                        category: 'keyword',
+                        isKeywordMatch: true,
+                        matchedKeyword: keyword
+                    });
+                }
+            }
+        });
+
+        const allResults = [...keywordResults, ...filteredResults];
+
+        if (allResults.length === 0) {
             resultsContainer.innerHTML = `
                 <div class="search-placeholder">
                     <span class="search-placeholder-icon">❌</span>
                     <p>No results found for "${query}"</p>
+                    <div class="search-tips">
+                        <p><strong>Try keywords like:</strong></p>
+                        <p>• "table" or "TABLE" - for database access</p>
+                        <p>• "company" - for company code management</p>
+                        <p>• "config" - for system configuration</p>
+                        <p>• "inventory" - for inventory management</p>
+                    </div>
                 </div>
             `;
             return;
         }
 
-        resultsContainer.innerHTML = filteredResults.map(item => `
-            <div class="search-result-item" data-item-id="${item.id}">
-                <div class="search-result-title">${item.title}</div>
-                <div class="search-result-category">${item.category}</div>
+        resultsContainer.innerHTML = allResults.map(item => `
+            <div class="search-result-item ${item.isKeywordMatch ? 'keyword-match' : ''}" data-item-id="${item.id}">
+                <div class="search-result-title">${item.isKeywordMatch ? '🔑 ' : ''}${item.title}</div>
+                <div class="search-result-category">${item.isKeywordMatch ? 'Keyword Match' : item.category}</div>
                 <div class="search-result-description">${item.description}</div>
+                ${item.matchedKeyword ? `<div class="keyword-indicator">Keyword: "${item.matchedKeyword}"</div>` : ''}
             </div>
         `).join('');
 
@@ -1632,6 +1738,27 @@ window.expandAllTreeNodes = function() {
         setTimeout(() => {
             window.testTreeScroll();
         }, 500);
+    }
+};
+
+// Global function to test keyword search
+window.testKeywordSearch = function(keyword) {
+    if (window.navigationManager) {
+        console.log(`Testing keyword search for: "${keyword}"`);
+        window.navigationManager.performSearch(keyword, 'all');
+        window.navigationManager.openSearchModal();
+    } else {
+        console.error('NavigationManager not available for testing');
+    }
+};
+
+// Global function to test direct keyword navigation
+window.testKeywordNavigation = function(keyword) {
+    if (window.navigationManager) {
+        console.log(`Testing direct keyword navigation for: "${keyword}"`);
+        window.navigationManager.executeSearch(keyword);
+    } else {
+        console.error('NavigationManager not available for testing');
     }
 };
 

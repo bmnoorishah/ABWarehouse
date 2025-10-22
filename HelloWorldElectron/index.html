@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="login.css">
     <link rel="stylesheet" href="navigation.css">
+    <script src="reference-data.js"></script>
     <script src="i18n.js"></script>
     <script src="roleManager.js"></script>
     <script src="auth.js"></script>
@@ -417,6 +418,10 @@
                                                 <span class="tree-icon">📦</span>
                                                 <span class="tree-label" data-i18n="orgStructure.maintainStorageLocation">Maintain Storage Location</span>
                                             </div>
+                                            <div class="tree-child" data-action="sql-query">
+                                                <span class="tree-icon">🗄️</span>
+                                                <span class="tree-label" data-i18n="orgStructure.sqlQuery">SQL Query Interface</span>
+                                            </div>
                                             <div class="tree-child" data-action="maintain-purchasing-org">
                                                 <span class="tree-icon">�</span>
                                                 <span class="tree-label" data-i18n="orgStructure.maintainPurchasingOrganization">Maintain Purchasing Organization</span>
@@ -502,6 +507,137 @@
                             <div class="placeholder-icon">📋</div>
                             <h3 data-i18n="orgStructure.selectActionPlaceholder">Select an action from the tree menu</h3>
                             <p data-i18n="orgStructure.selectActionDescription">Choose from the organizational structure options on the left to manage your company hierarchy.</p>
+                        </div>
+
+                        <!-- SQL Query Interface -->
+                        <div id="sql-query-content" class="sql-query-content" style="display: none;">
+                            <div class="sql-query-header">
+                                <h2>🗄️ SQL Query Interface</h2>
+                                <p>Execute SQL queries on the company database with advanced filtering, sorting, and pagination</p>
+                            </div>
+
+                            <!-- Query Input Section -->
+                            <div class="sql-query-section">
+                                <div class="query-input-group">
+                                    <label for="sql-textarea">Enter your SQL query:</label>
+                                    <textarea 
+                                        id="sql-textarea" 
+                                        class="sql-textarea" 
+                                        placeholder="SELECT * FROM companies WHERE country = 'US' ORDER BY company_name LIMIT 50"
+                                        rows="6">SELECT * FROM companies</textarea>
+                                </div>
+
+                                <div class="query-controls">
+                                    <button id="execute-sql-btn" class="btn btn-primary">
+                                        🚀 Execute Query
+                                    </button>
+                                    <button id="clear-sql-btn" class="btn btn-secondary">
+                                        🗑️ Clear
+                                    </button>
+                                    <button id="schema-btn" class="btn btn-outline">
+                                        📋 Show Schema
+                                    </button>
+                                </div>
+
+                                <div id="sample-queries" class="sample-queries">
+                                    <label>Sample Queries:</label>
+                                    <div class="sample-query-buttons">
+                                        <button class="sample-btn" data-query="SELECT * FROM companies">All Companies</button>
+                                        <button class="sample-btn" data-query="SELECT company_code, company_name, city FROM companies">Basic Info</button>
+                                        <button class="sample-btn" data-query="SELECT * FROM companies WHERE country = 'US'">US Companies</button>
+                                        <button class="sample-btn" data-query="SELECT * FROM companies WHERE company_name LIKE '%Warehouse%'">Warehouse Companies</button>
+                                        <button class="sample-btn" data-query="SELECT * FROM companies ORDER BY company_code ASC LIMIT 10">First 10 by Code</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Schema Information -->
+                            <div id="schema-info" class="schema-info" style="display: none;">
+                                <h4>📊 Database Schema</h4>
+                                <div id="schema-details" class="schema-details">
+                                    <p><strong>Table:</strong> companies</p>
+                                    <div class="schema-columns">
+                                        <div class="schema-column">
+                                            <span class="column-name">id</span>
+                                            <span class="column-type">number</span>
+                                        </div>
+                                        <div class="schema-column">
+                                            <span class="column-name">company_code</span>
+                                            <span class="column-type">string</span>
+                                        </div>
+                                        <div class="schema-column">
+                                            <span class="column-name">company_name</span>
+                                            <span class="column-type">string</span>
+                                        </div>
+                                        <div class="schema-column">
+                                            <span class="column-name">city</span>
+                                            <span class="column-type">string</span>
+                                        </div>
+                                        <div class="schema-column">
+                                            <span class="column-name">country</span>
+                                            <span class="column-type">string</span>
+                                        </div>
+                                        <div class="schema-column">
+                                            <span class="column-name">currency</span>
+                                            <span class="column-type">string</span>
+                                        </div>
+                                        <div class="schema-column">
+                                            <span class="column-name">language</span>
+                                            <span class="column-type">string</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Results Section -->
+                            <div id="sql-results-section" class="sql-results-section" style="display: none;">
+                                <div class="results-header">
+                                    <div class="results-info">
+                                        <span id="results-count">0 records found</span>
+                                        <span id="execution-time"></span>
+                                    </div>
+                                    <div class="results-controls">
+                                        <div class="control-group">
+                                            <label>Rows per page:</label>
+                                            <select id="rows-per-page">
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50" selected>50</option>
+                                                <option value="100">100</option>
+                                            </select>
+                                        </div>
+                                        <div class="control-group">
+                                            <label>Filter:</label>
+                                            <input type="text" id="quick-filter" placeholder="Filter results...">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Messages -->
+                                <div id="sql-messages" class="sql-messages"></div>
+
+                                <!-- Data Grid -->
+                                <div class="data-grid-container">
+                                    <table id="sql-data-table" class="data-table">
+                                        <thead id="sql-table-head">
+                                            <!-- Headers will be generated here -->
+                                        </thead>
+                                        <tbody id="sql-table-body">
+                                            <!-- Data will be displayed here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination -->
+                                <div id="sql-pagination" class="pagination-container">
+                                    <div class="pagination-info">
+                                        <span id="pagination-text">Showing 0-0 of 0 records</span>
+                                    </div>
+                                    <div class="pagination-controls" id="pagination-buttons">
+                                        <!-- Pagination buttons will be generated here -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -820,17 +956,13 @@
 
     <!-- Company Code Management Page -->
     <div id="company-code-management-page" class="page" style="display: none;">
+        <!-- Common Navigation -->
+        <div id="ccm-navigation-placeholder"></div>
+        
         <main class="main-content">
             <div class="page-container">
-                <!-- Page Header with Breadcrumb Navigation -->
+                <!-- Page Header -->
                 <div class="page-header">
-                    <div class="breadcrumb">
-                        <span data-i18n="navigation.systemConfig">System Config</span>
-                        <span class="breadcrumb-separator">›</span>
-                        <span data-i18n="organizationalStructure.title">Organizational Structure</span>
-                        <span class="breadcrumb-separator">›</span>
-                        <span data-i18n="companyCodeManagement.title">Company Code Management</span>
-                    </div>
                     <h1 data-i18n="companyCodeManagement.title">Company Code Management</h1>
                     <p data-i18n="companyCodeManagement.subtitle">View, create, edit, and delete company codes</p>
                 </div>
@@ -839,10 +971,6 @@
                     <!-- Toolbar -->
                     <div class="toolbar">
                         <div class="toolbar-left">
-                            <button type="button" id="back-to-org-structure" class="btn btn-outline">
-                                <span>← </span>
-                                <span data-i18n="navigation.backToOrgStructure">Back to Org Structure</span>
-                            </button>
                             <button type="button" id="refresh-company-codes" class="btn btn-secondary">
                                 <span>🔄</span>
                                 <span data-i18n="companyCodeManagement.refresh">Refresh</span>
@@ -914,31 +1042,6 @@
                         <h3 data-i18n="companyCodeManagement.noCompanyCodes">No Company Codes Found</h3>
                         <p data-i18n="companyCodeManagement.noCompanyCodesMessage">Get started by creating your first company code.</p>
                         <button type="button" id="add-first-company-code" class="btn btn-primary" data-i18n="companyCodeManagement.addFirst">Add First Company Code</button>
-                    </div>
-
-                    <!-- Statistics -->
-                    <div id="stats-container" class="stats-container">
-                        <div class="stat-card">
-                            <div class="stat-icon">🏢</div>
-                            <div class="stat-content">
-                                <div class="stat-value" id="total-companies">0</div>
-                                <div class="stat-label" data-i18n="companyCodeManagement.totalCompanies">Total Companies</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">🌍</div>
-                            <div class="stat-content">
-                                <div class="stat-value" id="total-countries">0</div>
-                                <div class="stat-label" data-i18n="companyCodeManagement.countries">Countries</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">💰</div>
-                            <div class="stat-content">
-                                <div class="stat-value" id="total-currencies">0</div>
-                                <div class="stat-label" data-i18n="companyCodeManagement.currencies">Currencies</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1035,6 +1138,7 @@
     <script src="common-navigation.js"></script>
     <script src="navigation.js"></script>
     <script src="company-code-management.js"></script>
+    <script src="sql-query-interface.js"></script>
     <script src="renderer.js"></script>
 </body>
 </html>

@@ -115,6 +115,22 @@ class CompanyCodeManagement {
         this.bindEvents();
     }
 
+    // Helper method to safely get translations
+    t(key, fallback = key) {
+        try {
+            if (window.i18n && typeof window.i18n.t === 'function') {
+                return window.i18n.t(key);
+            } else if (window.i18n && typeof window.i18n.translate === 'function') {
+                return window.i18n.translate(key);
+            } else if (typeof t === 'function') {
+                return t(key);
+            }
+        } catch (error) {
+            console.warn('Translation error for key:', key, error);
+        }
+        return fallback;
+    }
+
     initializeElements() {
         // Main elements
         this.tableContainer = document.getElementById('company-codes-table-container');
@@ -140,11 +156,6 @@ class CompanyCodeManagement {
         this.modalSave = document.getElementById('modal-save');
         this.modalDelete = document.getElementById('modal-delete');
         
-        // Statistics elements
-        this.totalCompaniesEl = document.getElementById('total-companies');
-        this.totalCountriesEl = document.getElementById('total-countries');
-        this.totalCurrenciesEl = document.getElementById('total-currencies');
-        
         // Form elements
         this.formElements = {
             companyCode: document.getElementById('modal-company-code'),
@@ -157,9 +168,6 @@ class CompanyCodeManagement {
     }
 
     bindEvents() {
-        // Navigation events
-        document.getElementById('back-to-org-structure')?.addEventListener('click', () => this.navigateBack());
-        
         // Toolbar events
         this.refreshBtn?.addEventListener('click', () => this.loadCompanyCodes());
         this.addBtn?.addEventListener('click', () => this.openCreateModal());
@@ -206,9 +214,6 @@ class CompanyCodeManagement {
         
         // Load company codes
         await this.loadCompanyCodes();
-        
-        // Load statistics
-        await this.loadStatistics();
     }
 
     async loadDropdownOptions() {
@@ -274,22 +279,30 @@ class CompanyCodeManagement {
         
         try {
             const response = await this.service.getAllCompanyCodes();
-            this.currentCompanyCodes = response.data;
+            console.log('API Response:', response);
+            console.log('Response.data:', response.data);
+            console.log('Type of response.data:', typeof response.data);
+            
+            // The API returns { success: true, data: [...], meta: {...} }
+            const companiesData = response.data;
+            
+            // Ensure we have an array
+            if (Array.isArray(companiesData)) {
+                this.currentCompanyCodes = companiesData;
+            } else {
+                console.warn('API response.data is not an array:', companiesData);
+                this.currentCompanyCodes = [];
+            }
+            
             this.filteredCompanyCodes = [...this.currentCompanyCodes];
             this.renderCompanyCodes();
             this.updateVisibility();
         } catch (error) {
             console.error('Error loading company codes:', error);
             this.showError(error.message);
-        }
-    }
-
-    async loadStatistics() {
-        try {
-            const response = await this.service.getStats();
-            this.updateStatistics(response.data);
-        } catch (error) {
-            console.error('Error loading statistics:', error);
+            // Ensure currentCompanyCodes is always an array
+            this.currentCompanyCodes = [];
+            this.filteredCompanyCodes = [];
         }
     }
 
@@ -307,12 +320,12 @@ class CompanyCodeManagement {
     createCompanyRow(company) {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td class="company-code-cell">${this.escapeHtml(company.companyCode)}</td>
-            <td class="company-name-cell">${this.escapeHtml(company.companyName)}</td>
-            <td>${this.escapeHtml(company.city)}</td>
-            <td>${this.escapeHtml(company.country)}</td>
-            <td>${this.escapeHtml(company.currency)}</td>
-            <td>${this.escapeHtml(company.language)}</td>
+            <td class="company-code-cell">${this.escapeHtml(company.company_code || '')}</td>
+            <td class="company-name-cell">${this.escapeHtml(company.company_name || '')}</td>
+            <td>${this.escapeHtml(company.city || '')}</td>
+            <td>${this.escapeHtml(company.country || '')}</td>
+            <td>${this.escapeHtml(company.currency || '')}</td>
+            <td>${this.escapeHtml(company.language || '')}</td>
             <td class="actions-cell">
                 <button type="button" class="btn-icon btn-edit" data-id="${company.id}" title="Edit">
                     ✏️
@@ -334,14 +347,19 @@ class CompanyCodeManagement {
     }
 
     handleSearch(searchTerm) {
+        // Ensure currentCompanyCodes is an array
+        if (!Array.isArray(this.currentCompanyCodes)) {
+            this.currentCompanyCodes = [];
+        }
+        
         if (!searchTerm.trim()) {
             this.filteredCompanyCodes = [...this.currentCompanyCodes];
         } else {
             const term = searchTerm.toLowerCase();
             this.filteredCompanyCodes = this.currentCompanyCodes.filter(company =>
-                company.companyCode.toLowerCase().includes(term) ||
-                company.companyName.toLowerCase().includes(term) ||
-                company.city.toLowerCase().includes(term)
+                (company.company_code && company.company_code.toLowerCase().includes(term)) ||
+                (company.company_name && company.company_name.toLowerCase().includes(term)) ||
+                (company.city && company.city.toLowerCase().includes(term))
             );
         }
         
@@ -370,7 +388,7 @@ class CompanyCodeManagement {
 
     openCreateModal() {
         this.currentEditingId = null;
-        this.modalTitle.textContent = window.i18n.t('companyCodeManagement.createCompany');
+        this.modalTitle.textContent = this.t('companyCodeManagement.createCompany');
         this.modalDelete.style.display = 'none';
         this.formElements.companyCode.disabled = false;
         this.resetForm();
@@ -383,7 +401,7 @@ class CompanyCodeManagement {
             const company = response.data;
             
             this.currentEditingId = id;
-            this.modalTitle.textContent = window.i18n.t('companyCodeManagement.editCompany');
+            this.modalTitle.textContent = this.t('companyCodeManagement.editCompany');
             this.modalDelete.style.display = 'inline-block';
             this.formElements.companyCode.disabled = true;
             
@@ -396,10 +414,20 @@ class CompanyCodeManagement {
     }
 
     populateForm(company) {
-        Object.keys(this.formElements).forEach(key => {
-            const element = this.formElements[key];
-            if (element && company[key] !== undefined) {
-                element.value = company[key] || '';
+        const fieldMapping = {
+            'companyCode': 'company_code',
+            'companyName': 'company_name',
+            'city': 'city',
+            'country': 'country',
+            'currency': 'currency',
+            'language': 'language'
+        };
+        
+        Object.keys(this.formElements).forEach(clientField => {
+            const element = this.formElements[clientField];
+            const serverField = fieldMapping[clientField] || clientField;
+            if (element && company[serverField] !== undefined) {
+                element.value = company[serverField] || '';
             }
         });
     }
@@ -416,45 +444,43 @@ class CompanyCodeManagement {
             const isValid = this.validateForm(formData);
             
             if (!isValid) {
-                this.showToast(window.i18n.t('companyCodeManagement.validationError'), 'error');
+                this.showToast(this.t('companyCodeManagement.validationError'), 'error');
                 return;
             }
 
             let response;
             if (this.currentEditingId) {
                 response = await this.service.updateCompanyCode(this.currentEditingId, formData);
-                this.showToast(window.i18n.t('companyCodeManagement.updateSuccess'), 'success');
+                this.showToast(this.t('companyCodeManagement.updateSuccess'), 'success');
             } else {
                 response = await this.service.createCompanyCode(formData);
-                this.showToast(window.i18n.t('companyCodeManagement.createSuccess'), 'success');
+                this.showToast(this.t('companyCodeManagement.createSuccess'), 'success');
             }
 
             this.closeModal();
             await this.loadCompanyCodes();
-            await this.loadStatistics();
         } catch (error) {
             console.error('Error saving company code:', error);
             
             if (error.message.includes('already exists')) {
-                this.showToast(window.i18n.t('companyCodeManagement.duplicateCode'), 'error');
+                this.showToast(this.t('companyCodeManagement.duplicateCode'), 'error');
             } else {
-                this.showToast(window.i18n.t('companyCodeManagement.errorSaving'), 'error');
+                this.showToast(this.t('companyCodeManagement.errorSaving'), 'error');
             }
         }
     }
 
     async confirmDelete(id) {
-        const confirmed = confirm(window.i18n.t('companyCodeManagement.deleteConfirm'));
+        const confirmed = confirm(this.t('companyCodeManagement.deleteConfirm'));
         if (!confirmed) return;
 
         try {
             await this.service.deleteCompanyCode(id);
-            this.showToast(window.i18n.t('companyCodeManagement.deleteSuccess'), 'success');
+            this.showToast(this.t('companyCodeManagement.deleteSuccess'), 'success');
             await this.loadCompanyCodes();
-            await this.loadStatistics();
         } catch (error) {
             console.error('Error deleting company code:', error);
-            this.showToast(window.i18n.t('companyCodeManagement.errorDeleting'), 'error');
+            this.showToast(this.t('companyCodeManagement.errorDeleting'), 'error');
         }
     }
 
@@ -467,10 +493,20 @@ class CompanyCodeManagement {
 
     getFormData() {
         const data = {};
+        const fieldMapping = {
+            'companyCode': 'company_code',
+            'companyName': 'company_name',
+            'city': 'city',
+            'country': 'country',
+            'currency': 'currency',
+            'language': 'language'
+        };
+        
         Object.keys(this.formElements).forEach(key => {
             const element = this.formElements[key];
             if (element) {
-                data[key] = element.value.trim();
+                const serverFieldName = fieldMapping[key] || key;
+                data[serverFieldName] = element.value.trim();
             }
         });
         return data;
@@ -479,12 +515,20 @@ class CompanyCodeManagement {
     validateForm(data) {
         let isValid = true;
 
-        // Required fields
-        const requiredFields = ['companyCode', 'companyName', 'city', 'country', 'currency', 'language'];
+        // Required fields mapping (client field name -> server field name)
+        const requiredFields = {
+            'companyCode': 'company_code',
+            'companyName': 'company_name', 
+            'city': 'city',
+            'country': 'country',
+            'currency': 'currency',
+            'language': 'language'
+        };
         
-        requiredFields.forEach(field => {
-            const element = this.formElements[field];
-            if (!data[field]) {
+        Object.keys(requiredFields).forEach(clientField => {
+            const serverField = requiredFields[clientField];
+            const element = this.formElements[clientField];
+            if (!data[serverField]) {
                 element?.classList.add('error');
                 isValid = false;
             } else {
@@ -514,20 +558,6 @@ class CompanyCodeManagement {
         }
 
         return isValid;
-    }
-
-    updateStatistics(stats) {
-        if (this.totalCompaniesEl) {
-            this.totalCompaniesEl.textContent = stats.totalCompanies || 0;
-        }
-        
-        if (this.totalCountriesEl) {
-            this.totalCountriesEl.textContent = stats.byCountry?.length || 0;
-        }
-        
-        if (this.totalCurrenciesEl) {
-            this.totalCurrenciesEl.textContent = stats.byCurrency?.length || 0;
-        }
     }
 
     showLoading() {

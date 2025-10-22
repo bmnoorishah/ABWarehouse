@@ -20,6 +20,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Setup i18n event listeners
     setupI18nEventListeners();
+    
+    // Populate all dropdowns with reference data
+    if (typeof window !== 'undefined') {
+        setTimeout(() => {
+            populateAllDropdowns();
+            console.log('✅ Dropdowns populated on page load');
+        }, 300); // Small delay to ensure all elements are ready
+    }
 });
 
 // Initialize common navigation system
@@ -53,7 +61,8 @@ function insertNavigationIntoPages() {
     const pages = [
         { placeholder: 'dashboard-navigation-placeholder', pageId: 'dashboard' },
         { placeholder: 'org-navigation-placeholder', pageId: 'organizational-structure' },
-        { placeholder: 'cc-navigation-placeholder', pageId: 'create-company-code' }
+        { placeholder: 'cc-navigation-placeholder', pageId: 'create-company-code' },
+        { placeholder: 'ccm-navigation-placeholder', pageId: 'company-code-management' }
     ];
     
     pages.forEach(page => {
@@ -494,13 +503,17 @@ function showOrganizationalStructurePage() {
 }
 
 function setupOrganizationalStructureActions() {
+    console.log('🔧 Setting up organizational structure actions');
+    
     // Set up tree child click handlers
     const treeChildren = document.querySelectorAll('.tree-child');
+    console.log('Found tree children:', treeChildren.length);
     
     treeChildren.forEach(child => {
         child.addEventListener('click', () => {
             const action = child.getAttribute('data-action');
             const label = child.querySelector('.tree-label').textContent;
+            console.log('Tree child clicked:', action, label);
             
             // Handle specific actions
             switch(action) {
@@ -521,6 +534,9 @@ function setupOrganizationalStructureActions() {
                     break;
                 case 'maintain-storage-location':
                     showPlaceholderForm('Maintain Storage Location', 'Manage storage location configurations');
+                    break;
+                case 'sql-query':
+                    showSQLQueryInterface();
                     break;
                 case 'maintain-purchasing-org':
                     showPlaceholderForm('Maintain Purchasing Organization', 'Configure purchasing organization settings');
@@ -588,6 +604,9 @@ function setupOrganizationalStructureActions() {
     });
 }
 
+// Make setupOrganizationalStructureActions globally available
+window.setupOrganizationalStructureActions = setupOrganizationalStructureActions;
+
 // Helper function to show placeholder forms for actions not yet implemented
 function showPlaceholderForm(title, description) {
     // Update content area with placeholder form
@@ -643,6 +662,182 @@ function resetContentArea() {
     }
 }
 
+// Function to show SQL Query Interface
+function showSQLQueryInterface() {
+    console.log('🚀 showSQLQueryInterface called');
+    
+    // First, navigate to the organizational structure page if not already there
+    if (window.commonNavigation) {
+        window.commonNavigation.navigateToPage('organizational-structure');
+        console.log('✅ Navigated to organizational structure page');
+    }
+    
+    // Small delay to ensure the org structure page is loaded
+    setTimeout(() => {
+        const orgStructurePage = document.getElementById('organizational-structure-page');
+        
+        if (orgStructurePage) {
+            console.log('✅ Organizational structure page found');
+            
+            // Look for the org content area within the org structure page
+            const orgContentArea = orgStructurePage.querySelector('.org-content-area');
+            
+            if (orgContentArea) {
+                console.log('✅ Org content area found');
+                
+                // Hide all existing content in the org content area
+                const existingContent = orgContentArea.children;
+                for (let i = 0; i < existingContent.length; i++) {
+                    if (existingContent[i].id !== 'sql-query-content') {
+                        existingContent[i].style.display = 'none';
+                    }
+                }
+                console.log('✅ Existing content hidden');
+                
+                // Find or create the SQL query content
+                let sqlQueryContent = orgContentArea.querySelector('#sql-query-content');
+                
+                if (sqlQueryContent) {
+                    sqlQueryContent.style.display = 'block';
+                    console.log('✅ Existing SQL query content shown');
+                } else {
+                    // If SQL content doesn't exist, create it
+                    console.log('🔧 Creating SQL query content dynamically');
+                    sqlQueryContent = document.createElement('div');
+                    sqlQueryContent.id = 'sql-query-content';
+                    sqlQueryContent.className = 'sql-query-content';
+                    sqlQueryContent.innerHTML = `
+                        <div class="sql-query-header">
+                            <h2>🗄️ SQL Query Interface</h2>
+                            <p>Execute SQL queries on the company database with advanced filtering, sorting, and pagination</p>
+                        </div>
+                        
+                        <!-- Messages Container -->
+                        <div id="sql-messages" class="sql-messages"></div>
+                        
+                        <div class="sql-query-section">
+                            <div class="query-input-group">
+                                <label for="sql-textarea">Enter your SQL query:</label>
+                                <textarea 
+                                    id="sql-textarea" 
+                                    class="sql-textarea" 
+                                    placeholder="SELECT * FROM companies WHERE country = 'US' ORDER BY company_name LIMIT 50"
+                                    rows="6">SELECT * FROM companies</textarea>
+                            </div>
+                            <div class="query-controls">
+                                <button id="execute-sql-btn" class="btn btn-primary">🚀 Execute Query</button>
+                                <button id="clear-sql-btn" class="btn btn-secondary">🗑️ Clear</button>
+                                <button id="schema-btn" class="btn btn-outline">📋 Show Schema</button>
+                            </div>
+                        </div>
+                        <div id="sql-results-section" class="sql-results-section" style="display: none;">
+                            <div class="results-header">
+                                <div class="results-info">
+                                    <span id="results-count">0 records found</span>
+                                    <span id="execution-time"></span>
+                                </div>
+                            </div>
+                            <div id="sql-results-container" class="sql-results-container">
+                                <div id="sql-results-table" class="sql-results-table">
+                                    <table class="data-table">
+                                        <thead id="sql-table-head"></thead>
+                                        <tbody id="sql-table-body"></tbody>
+                                    </table>
+                                </div>
+                                <div id="sql-pagination" class="sql-pagination"></div>
+                            </div>
+                        </div>
+                    `;
+                    orgContentArea.appendChild(sqlQueryContent);
+                    console.log('✅ SQL query content created and added');
+                }
+                
+                // Initialize the SQL query interface
+                if (typeof initializeSQLQueryInterface === 'function') {
+                    console.log('🔧 Initializing SQL query interface');
+                    
+                    // Small delay to ensure DOM elements are ready
+                    setTimeout(() => {
+                        const sqlInterface = initializeSQLQueryInterface();
+                        
+                        // Make it globally accessible for onclick handlers
+                        window.sqlQueryInterface = sqlInterface;
+                        console.log('✅ SQL query interface initialized and made global');
+                        
+                        // Verify initialization worked
+                        const executeBtn = document.getElementById('execute-sql-btn');
+                        if (executeBtn) {
+                            console.log('✅ Execute button found after initialization');
+                            
+                            // Add additional event listener as backup
+                            executeBtn.addEventListener('click', (e) => {
+                                console.log('🚀 Backup execute button clicked');
+                                if (window.sqlQueryInterface && window.sqlQueryInterface.executeQuery) {
+                                    window.sqlQueryInterface.executeQuery();
+                                } else {
+                                    console.error('❌ SQL interface not available');
+                                }
+                            });
+                        } else {
+                            console.error('❌ Execute button not found after initialization');
+                        }
+                    }, 200);
+                } else {
+                    console.warn('⚠️ initializeSQLQueryInterface function not available');
+                }
+                
+            } else {
+                console.error('❌ Org content area not found');
+            }
+        } else {
+            console.error('❌ Organizational structure page not found');
+        }
+    }, 200); // Increased delay to ensure page is properly loaded
+}
+
+// Make showSQLQueryInterface globally available
+window.showSQLQueryInterface = showSQLQueryInterface;
+
+// Function to show the org structure content placeholder
+function showOrgContentPlaceholder() {
+    console.log('🚀 showOrgContentPlaceholder called');
+    
+    const orgStructurePage = document.getElementById('organizational-structure-page');
+    if (orgStructurePage) {
+        const orgContentArea = orgStructurePage.querySelector('.org-content-area');
+        
+        if (orgContentArea) {
+            // Hide all content in the org content area
+            const existingContent = orgContentArea.children;
+            for (let i = 0; i < existingContent.length; i++) {
+                existingContent[i].style.display = 'none';
+            }
+            
+            // Show or create the content placeholder
+            let contentPlaceholder = orgContentArea.querySelector('.content-placeholder');
+            
+            if (contentPlaceholder) {
+                contentPlaceholder.style.display = 'block';
+                console.log('✅ Content placeholder shown');
+            } else {
+                // Create placeholder if it doesn't exist
+                contentPlaceholder = document.createElement('div');
+                contentPlaceholder.className = 'content-placeholder';
+                contentPlaceholder.innerHTML = `
+                    <div class="placeholder-icon">📋</div>
+                    <h3 data-i18n="orgStructure.selectActionPlaceholder">Select an action from the tree menu</h3>
+                    <p data-i18n="orgStructure.selectActionDescription">Choose from the organizational structure options on the left to manage your company hierarchy.</p>
+                `;
+                orgContentArea.appendChild(contentPlaceholder);
+                console.log('✅ Content placeholder created and shown');
+            }
+        }
+    }
+}
+
+// Make showOrgContentPlaceholder globally available
+window.showOrgContentPlaceholder = showOrgContentPlaceholder;
+
 function showDashboardPage() {
     // Use the common navigation system to properly handle dashboard navigation
     if (window.commonNavigation) {
@@ -696,28 +891,128 @@ function showCreateCompanyCodePage() {
         
         console.log('Navigated to Create Company Code page (fallback)');
     }
+
+    // Load all dropdown data from local reference data
+    populateAllDropdowns();
+}
+
+// Comprehensive function to populate ALL dropdowns across the application
+function populateAllDropdowns() {
+    try {
+        console.log('Populating all dropdowns with reference data...');
+        
+        // Check if reference data is available
+        if (typeof window.referenceData === 'undefined') {
+            console.error('Reference data not loaded yet, using fallback options');
+            addDefaultDropdownOptions();
+            return;
+        }
+        
+        // Get data from local reference data
+        const countries = window.referenceData.getCountries();
+        const currencies = window.referenceData.getCurrencies();
+        const languages = window.referenceData.getLanguages();
+        
+        // Main form dropdowns
+        populateDropdown('country', countries, 'Select Country...', (item) => ({
+            value: item.code,
+            text: `${item.name} (${item.code})`
+        }));
+        
+        populateDropdown('currency', currencies, 'Select Currency...', (item) => ({
+            value: item.code,
+            text: `${item.name} (${item.code})${item.symbol ? ' - ' + item.symbol : ''}`
+        }));
+        
+        populateDropdown('language', languages, 'Select Language...', (item) => ({
+            value: item.code,
+            text: `${item.name} (${item.code})`
+        }));
+        
+        // Modal form dropdowns
+        populateDropdown('modal-country', countries, 'Select Country...', (item) => ({
+            value: item.code,
+            text: `${item.name} (${item.code})`
+        }));
+        
+        populateDropdown('modal-currency', currencies, 'Select Currency...', (item) => ({
+            value: item.code,
+            text: `${item.name} (${item.code})${item.symbol ? ' - ' + item.symbol : ''}`
+        }));
+        
+        populateDropdown('modal-language', languages, 'Select Language...', (item) => ({
+            value: item.code,
+            text: `${item.name} (${item.code})`
+        }));
+        
+        // Filter dropdowns 
+        populateDropdown('filter-country', countries, 'All Countries', (item) => ({
+            value: item.code,
+            text: `${item.name} (${item.code})`
+        }));
+        
+        populateDropdown('filter-currency', currencies, 'All Currencies', (item) => ({
+            value: item.code,
+            text: `${item.name} (${item.code})`
+        }));
+        
+        console.log('All dropdowns populated successfully!');
+        
+    } catch (error) {
+        console.error('Error populating dropdowns:', error);
+        addDefaultDropdownOptions();
+    }
+}
+
+// Helper function to populate a single dropdown
+function populateDropdown(elementId, data, defaultText, formatter) {
+    const select = document.getElementById(elementId);
+    if (!select) {
+        console.warn(`Dropdown element '${elementId}' not found`);
+        return;
+    }
     
-    // Load dropdown data from API
-    loadCreateFormDropdowns();
+    // Clear existing options
+    select.innerHTML = '';
+    
+    // Add default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = defaultText;
+    select.appendChild(defaultOption);
+    
+    // Add data options
+    data.forEach(item => {
+        const option = document.createElement('option');
+        const formatted = formatter(item);
+        option.value = formatted.value;
+        option.textContent = formatted.text;
+        select.appendChild(option);
+    });
 }
 
 async function loadCreateFormDropdowns() {
     try {
-        // Fetch dropdown options from microservice
-        const response = await fetch('http://localhost:3001/api/company-codes/options');
-        if (!response.ok) {
-            console.warn('Could not load dropdown options, using defaults');
+        // Use local reference data instead of API call
+        console.log('Loading dropdown data from local reference...');
+        
+        // Check if reference data is available
+        if (typeof window.referenceData === 'undefined') {
+            console.error('Reference data not loaded yet, using fallback options');
+            addDefaultDropdownOptions();
             return;
         }
         
-        const result = await response.json();
-        const dropdownOptions = result.data;
+        // Get data from local reference data
+        const countries = window.referenceData.getCountries();
+        const currencies = window.referenceData.getCurrencies();
+        const languages = window.referenceData.getLanguages();
         
         // Populate country dropdown
         const countrySelect = document.getElementById('country');
-        if (countrySelect && dropdownOptions.countries) {
+        if (countrySelect) {
             countrySelect.innerHTML = '<option value="">Select Country...</option>';
-            dropdownOptions.countries.forEach(country => {
+            countries.forEach(country => {
                 const option = document.createElement('option');
                 option.value = country.code;
                 option.textContent = `${country.name} (${country.code})`;
@@ -725,23 +1020,23 @@ async function loadCreateFormDropdowns() {
             });
         }
         
-        // Populate currency dropdown
+        // Populate currency dropdown  
         const currencySelect = document.getElementById('currency');
-        if (currencySelect && dropdownOptions.currencies) {
+        if (currencySelect) {
             currencySelect.innerHTML = '<option value="">Select Currency...</option>';
-            dropdownOptions.currencies.forEach(currency => {
+            currencies.forEach(currency => {
                 const option = document.createElement('option');
-                option.value = currency;
-                option.textContent = currency;
+                option.value = currency.code;
+                option.textContent = `${currency.name} (${currency.code})${currency.symbol ? ' - ' + currency.symbol : ''}`;
                 currencySelect.appendChild(option);
             });
         }
-        
+
         // Populate language dropdown
         const languageSelect = document.getElementById('language');
-        if (languageSelect && dropdownOptions.languages) {
+        if (languageSelect) {
             languageSelect.innerHTML = '<option value="">Select Language...</option>';
-            dropdownOptions.languages.forEach(language => {
+            languages.forEach(language => {
                 const option = document.createElement('option');
                 option.value = language.code;
                 option.textContent = `${language.name} (${language.code})`;
@@ -749,14 +1044,14 @@ async function loadCreateFormDropdowns() {
             });
         }
         
+        console.log('Dropdown data loaded successfully from local reference');
+        
     } catch (error) {
         console.error('Error loading dropdown options:', error);
         // Add some default options as fallback
         addDefaultDropdownOptions();
     }
-}
-
-function addDefaultDropdownOptions() {
+}function addDefaultDropdownOptions() {
     // Add some common countries as fallback
     const countrySelect = document.getElementById('country');
     if (countrySelect) {
@@ -814,7 +1109,6 @@ function addDefaultDropdownOptions() {
             languageSelect.appendChild(option);
         });
     }
-    loadDropdownData();
     
     // Set up form handling
     setupCompanyCodeForm();
@@ -831,19 +1125,15 @@ async function loadDropdownData() {
         // Show loading indicators
         showLoadingIndicators();
         
-        // Fetch countries data from API
-        const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,currencies,languages,capital');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const countries = await response.json();
+        // Use local reference data instead of external API
+        const countries = referenceData.getCountries();
+        const currencies = referenceData.getCurrencies();
+        const languages = referenceData.getLanguages();
         
         // Process and populate dropdowns
-        await populateCountryDropdown(countries);
-        await populateCurrencyDropdown(countries);
-        await populateLanguageDropdown(countries);
+        await populateCountryDropdownLocal(countries);
+        await populateCurrencyDropdownLocal(currencies);
+        await populateLanguageDropdownLocal(languages);
         
         // Hide loading indicators
         hideLoadingIndicators();
@@ -1004,6 +1294,74 @@ async function populateLanguageDropdown(countries) {
     });
 }
 
+// Local data dropdown population functions
+async function populateCountryDropdownLocal(countries) {
+    const countrySelect = document.getElementById('country');
+    if (!countrySelect) return;
+    
+    // Clear loading option
+    countrySelect.innerHTML = '';
+    
+    // Add default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = window.i18n ? window.i18n.translate('createCompanyCode.selectCountry') : 'Select Country...';
+    countrySelect.appendChild(defaultOption);
+    
+    // Add country options
+    countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country.code; // ISO 2-letter code
+        option.textContent = `${country.name} (${country.code})`;
+        option.setAttribute('data-capital', country.capital || '');
+        countrySelect.appendChild(option);
+    });
+}
+
+async function populateCurrencyDropdownLocal(currencies) {
+    const currencySelect = document.getElementById('currency');
+    if (!currencySelect) return;
+    
+    // Clear loading option
+    currencySelect.innerHTML = '';
+    
+    // Add default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = window.i18n ? window.i18n.translate('createCompanyCode.selectCurrency') : 'Select Currency...';
+    currencySelect.appendChild(defaultOption);
+    
+    // Add currency options
+    currencies.forEach(currency => {
+        const option = document.createElement('option');
+        option.value = currency.code; // ISO 3-letter code
+        option.textContent = `${currency.name} (${currency.code})${currency.symbol ? ' - ' + currency.symbol : ''}`;
+        currencySelect.appendChild(option);
+    });
+}
+
+async function populateLanguageDropdownLocal(languages) {
+    const languageSelect = document.getElementById('language');
+    if (!languageSelect) return;
+    
+    // Clear loading option
+    languageSelect.innerHTML = '';
+    
+    // Add default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = window.i18n ? window.i18n.translate('createCompanyCode.selectLanguage') : 'Select Language...';
+    languageSelect.appendChild(defaultOption);
+    
+    // Add language options
+    languages.forEach(language => {
+        const option = document.createElement('option');
+        option.value = language.code; // ISO 2-letter code
+        option.textContent = `${language.name} (${language.code})`;
+        languageSelect.appendChild(option);
+    });
+}
+
 function addFallbackOptions() {
     // Add some basic fallback countries
     const countrySelect = document.getElementById('country');
@@ -1061,20 +1419,33 @@ function setupCompanyCodeForm() {
     
     if (!form) return;
     
+    // Prevent multiple event listeners by cloning elements
+    // This removes any existing event listeners
+    const newForm = form.cloneNode(true);
+    form.parentNode.replaceChild(newForm, form);
+    
+    const newCancelBtn = document.getElementById('cancel-btn');
+    const newSaveBtn = document.getElementById('save-btn');
+    
     // Set up cancel button
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
+    if (newCancelBtn) {
+        newCancelBtn.addEventListener('click', () => {
             if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
                 showCompanyCodeManagementPage();
             }
         });
     }
     
-    // Set up form submission
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        handleFormSubmission();
-    });
+    // Set up form submission - now on the cloned form
+    const refreshedForm = document.getElementById('company-code-form');
+    if (refreshedForm) {
+        refreshedForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent event bubbling
+            console.log('🔒 Form submission triggered - preventing multiple submissions');
+            handleFormSubmission();
+        });
+    }
     
     // Set up real-time validation
     setupRealtimeValidation();
@@ -1249,11 +1620,24 @@ function clearFieldMessages(fieldContainer) {
     messages.forEach(msg => msg.remove());
 }
 
+// Global flag to prevent multiple form submissions
+let isSubmitting = false;
+
 function handleFormSubmission() {
+    // Prevent multiple simultaneous submissions
+    if (isSubmitting) {
+        console.log('⚠️ Form submission already in progress, ignoring duplicate submission');
+        return;
+    }
+    
     const form = document.getElementById('company-code-form');
     const saveBtn = document.getElementById('save-btn');
     
     if (!form || !saveBtn) return;
+    
+    // Set submission flag
+    isSubmitting = true;
+    console.log('🔒 Starting form submission process');
     
     // Disable submit button to prevent double submission
     saveBtn.disabled = true;
@@ -1270,9 +1654,11 @@ function handleFormSubmission() {
     });
     
     if (!isFormValid) {
-        // Re-enable submit button
+        // Re-enable submit button and reset flag
         saveBtn.disabled = false;
-        saveBtn.textContent = window.i18n ? window.i18n.translate('createCompanyCode.save') : 'Save Company Code';
+        saveBtn.textContent = window.i18n ? window.i18n.translate('createCompanyCode.save') : 'Save';
+        isSubmitting = false;
+        console.log('❌ Form validation failed, submission cancelled');
         
         // Scroll to first error
         const firstError = form.querySelector('.form-field.error');
@@ -1378,9 +1764,13 @@ async function submitToMicroservice(companyCodeData, saveBtn) {
             showErrorToast('Error saving company code. Please try again.');
         }
     } finally {
-        // Re-enable submit button
+        // Re-enable submit button and reset submission flag
         saveBtn.disabled = false;
         saveBtn.textContent = window.i18n ? window.i18n.translate('createCompanyCode.save') : 'Save Company Code';
+        
+        // Reset global submission flag
+        isSubmitting = false;
+        console.log('🔓 Form submission process completed, isSubmitting reset to false');
     }
 }
 
@@ -1470,6 +1860,9 @@ function showCompanyCodeManagementPage() {
     if (typeof setupCompanyCodeManagement === 'function') {
         setupCompanyCodeManagement();
     }
+    
+    // Populate all dropdowns (including filters and modal) 
+    populateAllDropdowns();
     
     // Update translations for the new page
     if (window.i18n) {

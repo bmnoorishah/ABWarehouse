@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dropdowns</title>
+    <script src="reference-data.js"></script>
+</head>
+<body>
+    <h1>Test Reference Data</h1>
+    
+    <h2>Countries</h2>
+    <select id="test-country">
+        <option value="">Loading...</option>
+    </select>
+    
+    <h2>Currencies</h2>
+    <select id="test-currency">
+        <option value="">Loading...</option>
+    </select>
+    
+    <h2>Languages</h2>
+    <select id="test-language">
+        <option value="">Loading...</option>
+    </select>
+
+    <script>
+        // Test the reference data functionality
+        window.addEventListener('load', () => {
+            console.log('Testing reference data...');
+            
+            if (typeof referenceData === 'undefined') {
+                console.error('❌ Reference data not loaded!');
+                return;
+            }
+            
+            try {
+                // Test getting data
+                const countries = referenceData.getCountries();
+                const currencies = referenceData.getCurrencies();
+                const languages = referenceData.getLanguages();
+                
+                console.log(`✅ Countries loaded: ${countries.length}`);
+                console.log(`✅ Currencies loaded: ${currencies.length}`);
+                console.log(`✅ Languages loaded: ${languages.length}`);
+                
+                // Populate test dropdowns
+                const countrySelect = document.getElementById('test-country');
+                countrySelect.innerHTML = '<option value="">Select Country...</option>';
+                countries.slice(0, 10).forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.code;
+                    option.textContent = `${country.name} (${country.code})`;
+                    countrySelect.appendChild(option);
+                });
+                
+                const currencySelect = document.getElementById('test-currency');
+                currencySelect.innerHTML = '<option value="">Select Currency...</option>';
+                currencies.slice(0, 10).forEach(currency => {
+                    const option = document.createElement('option');
+                    option.value = currency.code;
+                    option.textContent = `${currency.name} (${currency.code})`;
+                    currencySelect.appendChild(option);
+                });
+                
+                const languageSelect = document.getElementById('test-language');
+                languageSelect.innerHTML = '<option value="">Select Language...</option>';
+                languages.slice(0, 10).forEach(language => {
+                    const option = document.createElement('option');
+                    option.value = language.code;
+                    option.textContent = `${language.name} (${language.code})`;
+                    languageSelect.appendChild(option);
+                });
+                
+                console.log('✅ Test dropdowns populated successfully!');
+                
+            } catch (error) {
+                console.error('❌ Error testing reference data:', error);
+            }
+        });
+    </script>
+</body>
+</html>

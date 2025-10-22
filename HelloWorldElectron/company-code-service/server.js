@@ -11,6 +11,7 @@ const swaggerUi = require('swagger-ui-express');
 
 const swaggerSpecs = require('./config/swagger');
 const companyCodeRoutes = require('./routes/companyCodeRoutes');
+const sqlQueryRoutes = require('./routes/sqlQueryRoutes');
 const { getDatabase } = require('./database/database');
 
 const app = express();
@@ -53,6 +54,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api', companyCodeRoutes);
+app.use('/api/sql', sqlQueryRoutes);
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
@@ -125,13 +127,13 @@ app.use('*', (req, res) => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully...');
-  db.close();
+  // db.close(); // In-memory database doesn't need closing
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully...');
-  db.close();
+  // db.close(); // In-memory database doesn't need closing
   process.exit(0);
 });
 

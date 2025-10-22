@@ -249,7 +249,8 @@
     "defineShippingConditions": "Define Shipping Conditions",
     "assignShippingPointsToPlantAndShippingConditions": "Assign Shipping Points To Plant And Shipping Conditions",
     "selectActionPlaceholder": "Select an action from the tree menu",
-    "selectActionDescription": "Choose from the organizational structure options on the left to manage your company hierarchy."
+    "selectActionDescription": "Choose from the organizational structure options on the left to manage your company hierarchy.",
+    "sqlQuery": "SQL Query Interface"
   },
   "createCompanyCode": {
     "title": "Create Company Code",

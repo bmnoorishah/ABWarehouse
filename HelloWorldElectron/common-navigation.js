@@ -29,6 +29,12 @@ class CommonNavigation {
                 showBack: true,
                 showHome: true,
                 backAction: () => this.navigateToPage('organizational-structure')
+            },
+            'company-code-management': {
+                title: 'companyCodeManagement.title',
+                showBack: true,
+                showHome: true,
+                backAction: () => this.navigateToPage('organizational-structure')
             }
         };
     }
@@ -318,9 +324,104 @@ class CommonNavigation {
     // Perform search
     performSearch(query) {
         console.log(`Performing search for: ${query}`);
+        
         // Add to search history
         this.addToSearchHistory(query);
-        // Execute search logic here
+        
+        // Initialize keyword navigation map if not exists
+        if (!this.keywordNavigationMap) {
+            this.keywordNavigationMap = {
+                'table': { id: 'sql-query', title: 'SQL Query Interface', description: 'Access database tables and query interface' },
+                'TABLE': { id: 'sql-query', title: 'SQL Query Interface', description: 'Access database tables and query interface' },
+                'database': { id: 'sql-query', title: 'SQL Query Interface', description: 'Access database and query tools' },
+                'sql': { id: 'sql-query', title: 'SQL Query Interface', description: 'Execute SQL queries and view data' },
+                'query': { id: 'sql-query', title: 'SQL Query Interface', description: 'Query database tables and data' },
+                'data': { id: 'sql-query', title: 'SQL Query Interface', description: 'View and query data tables' },
+                'company': { id: 'company-code-management', title: 'Company Code Management', description: 'Manage company codes and configurations' },
+                'code': { id: 'company-code-management', title: 'Company Code Management', description: 'Manage company codes' },
+                'master': { id: 'master_data', title: 'Master Data', description: 'Manage master data settings' },
+                'config': { id: 'configuration', title: 'System Configuration', description: 'Configure system parameters' },
+                'configuration': { id: 'configuration', title: 'System Configuration', description: 'Configure system parameters' },
+                'inbox': { id: 'inbox', title: 'Inbox', description: 'View incoming messages and notifications' },
+                'delivery': { id: 'inbound', title: 'Inbound Delivery', description: 'Manage incoming deliveries' },
+                'shipment': { id: 'outbound', title: 'Outbound Delivery', description: 'Handle outgoing shipments' },
+                'inventory': { id: 'physical_inventory', title: 'Physical Inventory', description: 'Conduct physical inventory counts' },
+                'stock': { id: 'replenishment', title: 'Stock Replenishment', description: 'Monitor inventory replenishment' },
+                'return': { id: 'return_process', title: 'Return Process', description: 'Handle product returns' },
+                'monitor': { id: 'warehouse_monitor', title: 'Warehouse Monitor', description: 'Monitor warehouse performance' }
+            };
+        }
+
+        // Check for exact keyword matches first (case-insensitive)
+        const trimmedQuery = query.trim();
+        const keywordMatch = this.keywordNavigationMap[trimmedQuery] || 
+                           this.keywordNavigationMap[trimmedQuery.toLowerCase()] ||
+                           this.keywordNavigationMap[trimmedQuery.toUpperCase()];
+
+        if (keywordMatch) {
+            console.log(`✅ Keyword match found for "${trimmedQuery}" -> ${keywordMatch.title}`);
+            
+            // Clear search input and hide suggestions
+            const searchInput = document.getElementById('nav-search-input');
+            if (searchInput) {
+                searchInput.value = '';
+                this.hideSearchSuggestions();
+            }
+            
+            // Navigate based on keyword
+            this.navigateToPageByKeyword(keywordMatch.id, keywordMatch.title, trimmedQuery);
+            return;
+        }
+
+        // If no exact keyword match, show search suggestions or open search modal
+        console.log(`No keyword match for "${trimmedQuery}". Opening search modal.`);
+        
+        // Open the main search modal if available
+        if (window.navigationManager && typeof window.navigationManager.openSearchModal === 'function') {
+            window.navigationManager.openSearchModal();
+            // Pre-fill the search modal with the query
+            setTimeout(() => {
+                const searchModalInput = document.getElementById('search-input');
+                if (searchModalInput) {
+                    searchModalInput.value = trimmedQuery;
+                    window.navigationManager.performSearch(trimmedQuery, 'all');
+                }
+            }, 100);
+        } else {
+            console.warn('Search modal not available. Showing simple notification.');
+            this.showNotification(`Searching for: ${trimmedQuery}`, 'info');
+        }
+    }
+
+    // Helper method to navigate based on keyword
+    navigateToPageByKeyword(pageId, title, keyword) {
+        console.log(`🚀 Navigating to ${title} via keyword: ${keyword}`);
+        
+        // Handle special navigation cases
+        switch(pageId) {
+            case 'sql-query':
+                if (typeof showSQLQueryInterface === 'function') {
+                    showSQLQueryInterface();
+                    this.showNotification(`Opening ${title} (keyword: ${keyword})`, 'success');
+                } else {
+                    console.warn('showSQLQueryInterface function not available');
+                    this.showNotification(`Cannot open ${title} - function not available`, 'error');
+                }
+                break;
+            case 'company-code-management':
+                if (this.navigateToPage && typeof this.navigateToPage === 'function') {
+                    this.navigateToPage('company-code-management');
+                    this.showNotification(`Opening ${title} (keyword: ${keyword})`, 'success');
+                } else {
+                    console.warn('navigateToPage not available for company-code-management');
+                    this.showNotification(`Cannot open ${title} - navigation not available`, 'error');
+                }
+                break;
+            default:
+                console.log(`No specific navigation handler for: ${pageId}`);
+                this.showNotification(`Found ${title} for keyword "${keyword}", but navigation not implemented`, 'info');
+                break;
+        }
     }
 
     // Add to search history
@@ -848,6 +949,9 @@ class CommonNavigation {
         // Search functionality (if not already initialized)
         this.initializeSearchForElement(element);
         
+        // Enhanced search functionality for cloned elements
+        this.initializeSearchForClone(element);
+        
         // Update back button visibility for this element
         this.updateBackButtonVisibilityForElement(element);
     }
@@ -1020,15 +1124,37 @@ class CommonNavigation {
         const searchInput = element.querySelector('.nav-search-input-enhanced');
         const searchClearBtn = element.querySelector('.search-clear-btn-enhanced');
         
-        if (searchInput && searchClearBtn) {
+        if (searchInput) {
+            console.log('Setting up search input event listeners for element');
+            
+            // Input event for showing/hiding clear button
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.trim();
-                searchClearBtn.style.display = query.length > 0 ? 'flex' : 'none';
+                if (searchClearBtn) {
+                    searchClearBtn.style.display = query.length > 0 ? 'flex' : 'none';
+                }
             });
             
+            // Keydown event for Enter key to trigger search
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        console.log('Search triggered via Enter key:', query);
+                        this.performSearch(query);
+                    }
+                } else if (e.key === 'Escape') {
+                    searchInput.blur();
+                }
+            });
+        }
+        
+        if (searchClearBtn) {
             searchClearBtn.addEventListener('click', () => {
                 searchInput.value = '';
                 searchClearBtn.style.display = 'none';
+                searchInput.focus();
             });
         }
     }
@@ -1651,6 +1777,30 @@ class CommonNavigation {
             this.updateUserDisplay(nav);
         });
     }
+    
+    // Debug function to test search functionality
+    debugSearchEvents() {
+        const searchInputs = document.querySelectorAll('#nav-search-input, .nav-search-input-enhanced');
+        console.log('=== Search Debug Info ===');
+        console.log('Found search inputs:', searchInputs.length);
+        
+        searchInputs.forEach((input, index) => {
+            console.log(`Input ${index + 1}:`, {
+                id: input.id,
+                class: input.className,
+                value: input.value,
+                hasEventListeners: input.eventListeners || 'Unknown'
+            });
+        });
+        
+        return searchInputs.length > 0;
+    }
+    
+    // Test search functionality manually
+    testSearchFunctionality(query = 'table') {
+        console.log('Testing search with query:', query);
+        this.performSearch(query);
+    }
 }
 
 // Create global instance
@@ -1664,6 +1814,107 @@ window.refreshNavigationUserDisplays = function() {
     } else {
         console.warn('Common navigation not available for user display refresh');
     }
+};
+
+// Global function to debug search events
+window.debugSearchEvents = function() {
+    if (window.commonNavigation) {
+        return window.commonNavigation.debugSearchEvents();
+    } else {
+        console.warn('Common navigation not available for search debug');
+        return false;
+    }
+};
+
+// Global function to test search functionality
+window.testSearchFunctionality = function(query = 'table') {
+    if (window.commonNavigation) {
+        return window.commonNavigation.testSearchFunctionality(query);
+    } else {
+        console.warn('Common navigation not available for search test');
+        return false;
+    }
+};
+
+// Global function to manually trigger search (alternative to typing and pressing Enter)
+window.manualSearch = function(query) {
+    if (window.commonNavigation) {
+        console.log('Manually triggering search for:', query);
+        window.commonNavigation.performSearch(query);
+    } else {
+        console.warn('Common navigation not available for manual search');
+    }
+};
+
+// Global function to test SQL Query Interface directly
+window.testShowSQLQueryInterface = function() {
+    console.log('🧪 Testing SQL Query Interface directly');
+    if (typeof showSQLQueryInterface === 'function') {
+        showSQLQueryInterface();
+        return true;
+    } else {
+        console.error('❌ showSQLQueryInterface function not available');
+        return false;
+    }
+};
+
+// Global function to check SQL elements
+window.checkSQLElements = function() {
+    const orgStructurePage = document.getElementById('organizational-structure-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    const createCompanyPage = document.getElementById('create-company-code-page');
+    
+    console.log('=== SQL Elements Check ===');
+    console.log('Org structure page found:', !!orgStructurePage);
+    console.log('Dashboard page found:', !!dashboardPage);
+    console.log('Create company page found:', !!createCompanyPage);
+    
+    if (orgStructurePage) {
+        console.log('Org structure page display style:', orgStructurePage.style.display);
+        console.log('Org structure page computed style:', window.getComputedStyle(orgStructurePage).display);
+        
+        // Look for elements within the org structure page
+        const contentPlaceholder = orgStructurePage.querySelector('.content-placeholder');
+        const sqlQueryContent = orgStructurePage.querySelector('#sql-query-content');
+        const orgContentArea = orgStructurePage.querySelector('.org-content-area');
+        
+        console.log('=== Elements within Org Structure Page ===');
+        console.log('Content placeholder found:', !!contentPlaceholder);
+        console.log('SQL query content found:', !!sqlQueryContent);
+        console.log('Org content area found:', !!orgContentArea);
+        console.log('Total elements in org page:', orgStructurePage.querySelectorAll('*').length);
+        
+        if (sqlQueryContent) {
+            console.log('SQL content display style:', sqlQueryContent.style.display);
+            console.log('SQL content computed style:', window.getComputedStyle(sqlQueryContent).display);
+        }
+        
+        if (contentPlaceholder) {
+            console.log('Content placeholder display style:', contentPlaceholder.style.display);
+            console.log('Content placeholder computed style:', window.getComputedStyle(contentPlaceholder).display);
+        }
+    }
+    
+    // Also check global elements (in case they're elsewhere)
+    const globalContentPlaceholder = document.querySelector('.content-placeholder');
+    const globalSqlQueryContent = document.getElementById('sql-query-content');
+    
+    console.log('=== Global Element Check ===');
+    console.log('Global content placeholder found:', !!globalContentPlaceholder);
+    console.log('Global SQL query content found:', !!globalSqlQueryContent);
+    
+    if (dashboardPage) {
+        console.log('Dashboard page display style:', dashboardPage.style.display);
+        console.log('Dashboard page computed style:', window.getComputedStyle(dashboardPage).display);
+    }
+    
+    return { 
+        orgStructurePage: !!orgStructurePage,
+        dashboardPage: !!dashboardPage,
+        createCompanyPage: !!createCompanyPage,
+        contentPlaceholderInOrg: !!(orgStructurePage && orgStructurePage.querySelector('.content-placeholder')),
+        sqlQueryContentInOrg: !!(orgStructurePage && orgStructurePage.querySelector('#sql-query-content'))
+    };
 };
 
 // Global function to test and refresh language displays
@@ -1713,3 +1964,71 @@ window.testUserDisplay = function() {
     
     window.refreshNavigationUserDisplays();
 };
+
+// Add showNotification method to CommonNavigation prototype
+CommonNavigation.prototype.showNotification = function(message, type = 'info') {
+    console.log(`📢 ${type.toUpperCase()}: ${message}`);
+    
+    // Try to show a toast notification if available
+    if (window.showToast && typeof window.showToast === 'function') {
+        window.showToast(message, type);
+        return;
+    }
+    
+    // Fallback to browser notification
+    try {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            max-width: 300px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }, 3000);
+    } catch (error) {
+        console.error('Failed to show notification:', error);
+        // Ultimate fallback - just alert
+        if (type === 'error') {
+            alert(message);
+        }
+    }
+};
+
+// Global test function for keyword search
+window.testKeywordSearchIntegration = function(keyword) {
+    console.log(`🧪 Testing keyword search integration for: "${keyword}"`);
+    
+    if (window.commonNavigation && typeof window.commonNavigation.performSearch === 'function') {
+        window.commonNavigation.performSearch(keyword);
+    } else {
+        console.error('❌ CommonNavigation not available for testing');
+    }
+};
+
+// Quick test functions for specific keywords
+window.testTableKeyword = () => window.testKeywordSearchIntegration('table');
+window.testCompanyKeyword = () => window.testKeywordSearchIntegration('company');
+window.testDatabaseKeyword = () => window.testKeywordSearchIntegration('database');

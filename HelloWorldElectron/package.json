@@ -8,9 +8,16 @@
     "build": "electron-builder",
     "build-win": "electron-builder --win",
     "build-win-portable": "electron-builder --win portable",
+    "build-win-installer": "electron-builder --win nsis",
+    "build-win-zip": "electron-builder --win zip",
+    "build-win-all": "electron-builder --win nsis --win portable --win zip",
+    "build-win-safe": "electron-builder --win zip --win dir",
     "build-mac": "electron-builder --mac",
     "build-linux": "electron-builder --linux",
-    "dist": "electron-builder --publish=never"
+    "build-all": "electron-builder --win --mac --linux",
+    "build-script": "node build.js",
+    "dist": "electron-builder --publish=never",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [
     "electron",
@@ -69,10 +76,21 @@
             "x64",
             "ia32"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ],
       "publisherName": "ABWarehouse Solutions",
-      "verifyUpdateCodeSignature": false
+      "verifyUpdateCodeSignature": false,
+      "requestedExecutionLevel": "asInvoker",
+      "signAndEditExecutable": false,
+      "signingHashAlgorithms": ["sha256"],
+      "rfc3161TimeStampServer": "http://timestamp.digicert.com"
     },
     "nsis": {
       "oneClick": false,

@@ -47,7 +47,12 @@ class InMemoryDatabase {
 
   async findAll() {
     const records = Array.from(this.data.values());
-    return records.sort((a, b) => a.company_code.localeCompare(b.company_code));
+    console.log('📋 findAll called - returning', records.length, 'records');
+    return records.sort((a, b) => {
+      const aCode = a.company_code || '';
+      const bCode = b.company_code || '';
+      return aCode.localeCompare(bCode);
+    });
   }
 
   async findById(id) {
@@ -60,6 +65,13 @@ class InMemoryDatabase {
   }
 
   async create(companyCodeData) {
+    console.log('📝 Creating new company code:', companyCodeData);
+    
+    // Validate that company_code is provided
+    if (!companyCodeData.company_code || companyCodeData.company_code.trim() === '') {
+      throw new Error('Company code is required and cannot be empty');
+    }
+
     const existing = await this.findByCompanyCode(companyCodeData.company_code);
     if (existing) {
       throw new Error(`Company code ${companyCodeData.company_code} already exists`);
@@ -71,16 +83,30 @@ class InMemoryDatabase {
     const newRecord = {
       id,
       company_code: companyCodeData.company_code,
-      company_name: companyCodeData.company_name,
-      city: companyCodeData.city,
-      country: companyCodeData.country,
-      currency: companyCodeData.currency,
-      language: companyCodeData.language,
+      company_name: companyCodeData.company_name || '',
+      city: companyCodeData.city || '',
+      country: companyCodeData.country || '',
+      currency: companyCodeData.currency || '',
+      language: companyCodeData.language || '',
+      vat_registration_number: companyCodeData.vat_registration_number || '',
+      input_tax_code: companyCodeData.input_tax_code || '',
+      output_tax_code: companyCodeData.output_tax_code || '',
+      house_number: companyCodeData.house_number || '',
+      address_line1: companyCodeData.address_line1 || '',
+      address_line2: companyCodeData.address_line2 || '',
+      address_line3: companyCodeData.address_line3 || '',
+      region: companyCodeData.region || '',
+      district: companyCodeData.district || '',
+      county: companyCodeData.county || '',
+      state: companyCodeData.state || '',
+      post_code: companyCodeData.post_code || '',
       created_at: now,
       updated_at: now
     };
 
     this.data.set(id, newRecord);
+    console.log('✅ Successfully created company code:', newRecord);
+    console.log('📊 Total records in database:', this.data.size);
     return newRecord;
   }
 

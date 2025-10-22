@@ -9,6 +9,7 @@ const swaggerUi = require('swagger-ui-express');
 // Import company code service components
 const swaggerSpecs = require('./company-code-service/config/swagger');
 const companyCodeRoutes = require('./company-code-service/routes/companyCodeRoutes');
+const sqlQueryRoutes = require('./company-code-service/routes/sqlQueryRoutes');
 const { getDatabase } = require('./company-code-service/database/database');
 
 // Keep a global reference of the window object
@@ -68,7 +69,8 @@ function initializeExpressServer() {
   }));
 
   // API routes
-  expressApp.use('/api/company-codes', companyCodeRoutes);
+  expressApp.use('/api', companyCodeRoutes);
+  expressApp.use('/api/sql', sqlQueryRoutes);
 
   // Root endpoint
   expressApp.get('/', (req, res) => {

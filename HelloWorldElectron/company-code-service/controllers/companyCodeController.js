@@ -55,7 +55,29 @@ class CompanyCodeController {
       }
 
       // Create company code
-      const companyCode = this.db.create(value);
+      // Transform camelCase to snake_case for database
+      const dbData = {
+        company_code: value.companyCode,
+        company_name: value.companyName,
+        city: value.city,
+        country: value.country,
+        currency: value.currency,
+        language: value.language,
+        vat_registration_number: value.vatRegistrationNumber || '',
+        input_tax_code: value.inputTaxCode || '',
+        output_tax_code: value.outputTaxCode || '',
+        house_number: value.houseNumber || '',
+        address_line1: value.addressLine1 || '',
+        address_line2: value.addressLine2 || '',
+        address_line3: value.addressLine3 || '',
+        region: value.region || '',
+        district: value.district || '',
+        county: value.county || '',
+        state: value.state || '',
+        post_code: value.postCode || ''
+      };
+      
+      const companyCode = await this.db.create(dbData);
 
       res.status(201).json({
         success: true,
@@ -124,7 +146,7 @@ class CompanyCodeController {
    */
   async getAll(req, res) {
     try {
-      let companies = this.db.findAll();
+      let companies = await this.db.findAll();
 
       // Apply filters
       const { country, currency, search } = req.query;
@@ -194,7 +216,7 @@ class CompanyCodeController {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const companyCode = this.db.findById(id);
+      const companyCode = await this.db.findById(id);
 
       if (!companyCode) {
         return res.status(404).json({
@@ -266,7 +288,7 @@ class CompanyCodeController {
       }
 
       // Update company code
-      const updatedCompanyCode = this.db.update(id, value);
+      const updatedCompanyCode = await this.db.update(id, value);
 
       if (!updatedCompanyCode) {
         return res.status(404).json({
@@ -320,7 +342,7 @@ class CompanyCodeController {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const deleted = this.db.delete(id);
+      const deleted = await this.db.delete(id);
 
       if (!deleted) {
         return res.status(404).json({
@@ -365,7 +387,7 @@ class CompanyCodeController {
   async getByCompanyCode(req, res) {
     try {
       const { companyCode } = req.params;
-      const company = this.db.findByCompanyCode(companyCode);
+      const company = await this.db.findByCompanyCode(companyCode);
 
       if (!company) {
         return res.status(404).json({
@@ -400,7 +422,7 @@ class CompanyCodeController {
    */
   async getStats(req, res) {
     try {
-      const stats = this.db.getStats();
+      const stats = await this.db.getStats();
       res.json({
         success: true,
         data: stats

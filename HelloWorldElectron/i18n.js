@@ -108,6 +108,11 @@ class I18nManager {
         return translation || key;
     }
 
+    // Alias for translate method for convenience
+    t(key, params = {}) {
+        return this.translate(key, params);
+    }
+
     updatePageTranslations() {
         // Update all elements with data-i18n attribute
         document.querySelectorAll('[data-i18n]').forEach(element => {

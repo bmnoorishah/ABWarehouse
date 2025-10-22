@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download ABWarehouse - Windows Application</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .safe {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .download-btn {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .download-btn.alternative {
+            background: #17a2b8;
+        }
+        .download-btn.alternative:hover {
+            background: #138496;
+        }
+        .steps {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        h1, h2 { color: #fff; }
+        .icon { font-size: 1.5em; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Download ABWarehouse for Windows</h1>
+        
+        <div class="warning">
+            <h3>🛡️ Security Notice</h3>
+            <p><strong>Windows may show a security warning</strong> because this application is not digitally signed yet. This is normal and safe - ABWarehouse is completely legitimate software.</p>
+        </div>
+
+        <div class="safe">
+            <h3>✅ ABWarehouse is Safe</h3>
+            <ul>
+                <li>🔒 <strong>No internet required</strong> - runs locally on your computer</li>
+                <li>🏠 <strong>Your data stays private</strong> - stored only on your machine</li>
+                <li>⚡ <strong>Electron-based</strong> - same technology as VS Code, Discord, Slack</li>
+                <li>🔍 <strong>Open source</strong> - code can be reviewed</li>
+            </ul>
+        </div>
+
+        <h2>📥 Download Options</h2>
+        
+        <h3>🚀 Recommended: ZIP Package (Safest)</h3>
+        <p>Less likely to trigger antivirus warnings:</p>
+        <a href="#" class="download-btn alternative">📁 Download ZIP Package (116 MB)</a>
+        
+        <div class="steps">
+            <h4>How to install from ZIP:</h4>
+            <div class="step">1. Download the ZIP file</div>
+            <div class="step">2. Extract to a folder (like C:\ABWarehouse\)</div>
+            <div class="step">3. Run ABWarehouse.exe from the extracted folder</div>
+            <div class="step">4. If Windows warns, click "More info" → "Run anyway"</div>
+        </div>
+
+        <h3>🏢 Full Installer</h3>
+        <p>Complete installation with shortcuts and uninstaller:</p>
+        <a href="#" class="download-btn">⚙️ Download Installer (90 MB)</a>
+
+        <h3>🚀 Portable Version</h3>
+        <p>Single executable, no installation needed:</p>
+        <a href="#" class="download-btn">💾 Download Portable (90 MB)</a>
+
+        <h2>🛡️ If Windows Blocks the Download</h2>
+        
+        <div class="steps">
+            <h4>Browser Issues:</h4>
+            <div class="step"><strong>Chrome:</strong> Click download arrow → "Keep" → "Keep anyway"</div>
+            <div class="step"><strong>Edge:</strong> Click "..." → "Keep" → "Show more" → "Keep anyway"</div>
+            <div class="step"><strong>Firefox:</strong> Click download arrow → "Allow this download"</div>
+        </div>
+
+        <div class="steps">
+            <h4>Windows SmartScreen Warning:</h4>
+            <div class="step">1. When you see "Windows protected your PC"</div>
+            <div class="step">2. Click "More info"</div>
+            <div class="step">3. Click "Run anyway"</div>
+            <div class="step">4. ABWarehouse will start normally</div>
+        </div>
+
+        <h2>💻 System Requirements</h2>
+        <ul>
+            <li>Windows 7 SP1 or later (Windows 10/11 recommended)</li>
+            <li>2 GB RAM minimum, 4 GB recommended</li>
+            <li>200 MB free disk space</li>
+            <li>Works on both 32-bit and 64-bit systems</li>
+        </ul>
+
+        <h2>🆘 Need Help?</h2>
+        <p>If you're still having issues:</p>
+        <ul>
+            <li>📖 Check the <a href="WINDOWS_SECURITY_GUIDE.md" style="color: #ffc107;">Security Guide</a></li>
+            <li>💼 Forward this page to your IT administrator</li>
+            <li>📧 Contact support for assistance</li>
+        </ul>
+
+        <div class="safe">
+            <h3>🔐 For IT Administrators</h3>
+            <p>To whitelist ABWarehouse in your organization:</p>
+            <ul>
+                <li>Add ABWarehouse.exe to trusted applications</li>
+                <li>Create exclusion in Windows Defender</li>
+                <li>Use Group Policy to allow the application</li>
+            </ul>
+        </div>
+
+        <footer style="text-align: center; margin-top: 40px; opacity: 0.8;">
+            <p>ABWarehouse v1.0.0 - Company Management Application</p>
+            <p>Built with Electron - Safe, Secure, and Private</p>
+        </footer>
+    </div>
+
+    <script>
+        // Add actual download links here when hosting
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Replace these links with actual download URLs when hosting the files.\n\nFor now, copy files from the dist/ folder:\n• ABWarehouse Setup 1.0.0.exe\n• ABWarehouse 1.0.0.exe\n• ABWarehouse-1.0.0-win.zip');
+            });
+        });
+    </script>
+</body>
+</html>
